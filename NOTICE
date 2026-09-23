@@ -1,0 +1,26 @@
+Raven Studio Adaptive Test
+Copyright 2026 EverchangingPulse
+
+This product includes original work distributed under the Apache License,
+Version 2.0, subject to the scope described in LICENSE and
+THIRD_PARTY_NOTICES.md.
+
+Project attribution:
+  Raven Studio Adaptive Test
+  https://github.com/EverchangingPulse/RavenStudioAdaptiveTest
+
+Third-party attribution:
+  pyRavenMatrices by Can Mekik
+  https://github.com/cmekik/pyRavenMatrices
+
+Early versions of Raven Studio inspected and adapted certain geometry and
+structural ideas from pyRavenMatrices. Copyright and other rights in upstream
+material remain with their respective owner(s).
+
+Nothing in this NOTICE or in the Apache-2.0 license for Raven Studio is
+intended to relicense third-party material for which the Raven Studio authors
+do not hold licensing authority.
+
+Where Apache-2.0 Section 4(d) applies, redistributions of Raven Studio
+derivative works should preserve this NOTICE in the manner required by that
+license.
