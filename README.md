@@ -1,16 +1,16 @@
-# Raven Studio Adaptive Test
+# Axiom Studio Adaptive Test
 
-**Raven Studio** è un'applicazione web standalone per esercizi di ragionamento astratto e visuospaziale basati su matrici logiche 3×3.
+**Axiom Studio** è un'applicazione web standalone per esercizi di ragionamento astratto e visuospaziale basati su matrici logiche 3×3.
 
 Genera dinamicamente problemi visivi nei quali bisogna individuare la figura mancante scegliendo fra otto possibili risposte. Include numerose famiglie di esercizi, livelli di difficoltà differenti, spiegazioni degli errori e una modalità di **test adattivo** che modifica progressivamente la complessità degli esercizi in funzione delle risposte date.
 
-Raven Studio funziona interamente nel browser: dopo il download non richiede server, installazione, account o connessione Internet.
+Axiom Studio funziona interamente nel browser: dopo il download non richiede server, installazione, account o connessione Internet.
 
-> **Importante:** Raven Studio è uno strumento sperimentale di esercitazione e valutazione relativa del ragionamento visivo. Non è un test di intelligenza standardizzato. I suoi punteggi non devono essere interpretati come IQ, diagnosi cliniche o valutazioni psicometriche certificate.
+> **Importante:** Axiom Studio è uno strumento sperimentale di esercitazione e valutazione relativa del ragionamento visivo. Non è un test di intelligenza standardizzato. I suoi punteggi non devono essere interpretati come IQ, diagnosi cliniche o valutazioni psicometriche certificate.
 
 ## Download diretto
 
-**[Scarica Raven Studio](https://raw.githubusercontent.com/EverchangingPulse/RavenStudioAdaptiveTest/main/raven-studio.html)**
+**[Scarica Axiom Studio](https://raw.githubusercontent.com/EverchangingPulse/RavenStudioAdaptiveTest/main/raven-studio.html)**
 
 Il link sopra punta direttamente al file HTML standalone corrente. Dopo il download, apri `raven-studio.html` con un browser moderno.
 
@@ -18,7 +18,7 @@ Il repository contiene anche `index.html`, equivalente alla build standalone cor
 
 ## A cosa serve
 
-Raven Studio è progettato per esercitare e osservare diverse componenti del ragionamento astratto:
+Axiom Studio è progettato per esercitare e osservare diverse componenti del ragionamento astratto:
 
 - identificazione di regole visive;
 - ragionamento visuospaziale;
@@ -61,7 +61,7 @@ La modalità **Esercizio singolo** permette di scegliere direttamente:
 
 ## Tipi di esercizi
 
-Raven Studio contiene numerose categorie generate proceduralmente, fra cui:
+Axiom Studio contiene numerose categorie generate proceduralmente, fra cui:
 
 - Operazioni su Griglie
 - Logica con Copertura Mobile
@@ -134,7 +134,7 @@ Diverse famiglie producono deliberatamente **near-miss**, cioè alternative quas
 
 ## Spiegazioni delle risposte
 
-Quando il feedback è abilitato, Raven Studio può spiegare:
+Quando il feedback è abilitato, Axiom Studio può spiegare:
 
 - quale regola era richiesta;
 - quali proprietà della risposta scelta erano corrette;
@@ -148,7 +148,7 @@ Le spiegazioni sono formulate in termini dell'aspetto effettivo della figura e n
 
 ## Difficoltà adattiva
 
-Raven Studio usa una scala interna di difficoltà relativa per:
+Axiom Studio usa una scala interna di difficoltà relativa per:
 
 - confrontare gli esercizi;
 - scegliere il prossimo esercizio nel test adattivo;
@@ -180,7 +180,7 @@ Usando lo stesso seed e le stesse impostazioni è possibile ricreare lo stesso e
 
 ## Utilizzo offline
 
-Raven Studio è contenuto in un singolo file HTML e non richiede:
+Axiom Studio è contenuto in un singolo file HTML e non richiede:
 
 - backend;
 - database;
@@ -215,7 +215,7 @@ L'interfaccia è progettata anche per smartphone.
 
 ## Interpretazione dei risultati
 
-Raven Studio non deve essere utilizzato da solo per formulare conclusioni cliniche o psicologiche.
+Axiom Studio non deve essere utilizzato da solo per formulare conclusioni cliniche o psicologiche.
 
 In particolare:
 
@@ -245,7 +245,7 @@ Durante lo sviluppo il generatore è stato sottoposto a test automatici su grand
 
 ## Licenza
 
-Il materiale originale di Raven Studio per il quale gli autori di questo repository possiedono i diritti è distribuito secondo la **Apache License 2.0**.
+Il materiale originale di Axiom Studio per il quale gli autori di questo repository possiedono i diritti è distribuito secondo la **Apache License 2.0**.
 
 Consulta:
 
@@ -257,12 +257,12 @@ La licenza Apache-2.0 **non pretende di rilicenziare materiale di terzi** sul qu
 
 ## Attribuzioni e materiale precedente
 
-Raven Studio deriva in parte da lavoro e idee presenti in:
+Axiom Studio deriva in parte da lavoro e idee presenti in:
 
 **pyRavenMatrices — Can Mekik**  
 https://github.com/cmekik/pyRavenMatrices
 
-Una fase iniziale di Raven Studio ha analizzato e adattato alcune geometrie e strutture provenienti da quel progetto.
+Una fase iniziale di Axiom Studio ha analizzato e adattato alcune geometrie e strutture provenienti da quel progetto.
 
 I diritti sul materiale originale rimangono dei rispettivi titolari. Al momento della preparazione di questo repository non è stata verificata nel repository upstream una licenza software esplicita che autorizzi a considerare quel materiale Apache-2.0.
 
@@ -294,4 +294,4 @@ Questo permette di riprodurre esattamente la matrice.
 
 ---
 
-Raven Studio è un progetto sperimentale dedicato allo studio e all'esercizio del ragionamento visivo generato proceduralmente.
+Axiom Studio è un progetto sperimentale dedicato allo studio e all'esercizio del ragionamento visivo generato proceduralmente.
