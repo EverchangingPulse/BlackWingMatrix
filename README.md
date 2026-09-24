@@ -12,9 +12,9 @@ BlackWingMatrix funziona interamente nel browser: dopo il download non richiede 
 
 ## Download diretto
 
-**[Scarica BlackWingMatrix](https://raw.githubusercontent.com/EverchangingPulse/RavenStudioAdaptiveTest/main/raven-studio.html)**
+**[Scarica BlackWingMatrix](https://raw.githubusercontent.com/EverchangingPulse/BlackWingMatrix/main/blackwingmatrix.html)**
 
-Il link sopra punta direttamente al file HTML standalone corrente. Dopo il download, apri `raven-studio.html` con un browser moderno.
+Il link sopra punta direttamente al file HTML standalone corrente. Dopo il download, apri `blackwingmatrix.html` con un browser moderno.
 
 Il repository contiene anche `index.html`, equivalente alla build standalone corrente.
 
@@ -207,7 +207,7 @@ L'interfaccia è progettata anche per smartphone.
 
 ## Come iniziare
 
-1. Scarica `raven-studio.html`.
+1. Scarica `blackwingmatrix.html`.
 2. Aprilo con il browser.
 3. Seleziona **Test adattivo** oppure **Esercizio singolo**.
 4. Nel test adattivo imposta durata e numero massimo di esercizi, se necessario.
