@@ -15,7 +15,7 @@
 
 **BlackWingMatrix** is een zelfstandige webapp voor het oefenen van abstract en visuospatieel redeneren met procedureel gegenereerde 3×3-logische matrices.
 
-Huidige versie: **1.29.15**.
+Huidige versie: **1.29.16**.
 
 ## Online proberen
 
