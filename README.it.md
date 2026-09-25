@@ -15,7 +15,7 @@
 
 **BlackWingMatrix** è un'applicazione web standalone per esercitare il ragionamento astratto e visuospaziale con matrici logiche 3×3 generate proceduralmente.
 
-Versione corrente: **1.29.16**.
+Versione corrente: **1.29.17**.
 
 ## Provalo online
 
