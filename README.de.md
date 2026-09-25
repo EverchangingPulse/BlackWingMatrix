@@ -15,7 +15,7 @@
 
 **BlackWingMatrix** ist eine eigenständige Webanwendung zum Training abstrakten und visuell-räumlichen Denkens mit prozedural erzeugten 3×3-Logikmatrizen.
 
-Aktuelle Version: **1.29.16**.
+Aktuelle Version: **1.29.17**.
 
 ## Online ausprobieren
 
