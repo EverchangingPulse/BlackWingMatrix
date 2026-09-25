@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <meta name="application-name" content="BlackWingMatrix">
-<meta name="software-version" content="1.29.16">
+<meta name="software-version" content="1.29.17">
 <title>BlackWingMatrix · Offline visual reasoning</title>
 <style>
 :root{--ink:#20312e;--muted:#64716c;--paper:#f5f4ef;--line:#dce2dc;--green:#245f4d;--soft:#e8efe9;--gold:#b6752a;--red:#a14338}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button,select,input{border:1px solid #cbd5cd;border-radius:9px;background:#fff;color:var(--ink);padding:10px 13px}button{cursor:pointer;font-weight:650}button:hover{border-color:var(--green);background:#f0f5f0}button:disabled{opacity:.5;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #d99d42;outline-offset:3px}.primary{background:var(--green);color:white;border-color:var(--green)}.primary:hover{background:#194b3b;color:white}.small{font-size:12px}.muted{color:var(--muted)}.eyebrow{font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:750;color:var(--green)}header{max-width:1200px;margin:auto;padding:32px 28px 22px;display:flex;justify-content:space-between;align-items:center;gap:20px}.brand{display:flex;gap:14px;align-items:center}.mark{width:58px;height:58px;display:grid;place-items:center;border-radius:14px;overflow:hidden;background:#fff;border:1px solid var(--line)}.mark img{display:block;width:100%;height:100%;object-fit:contain}h1{font-size:24px;letter-spacing:-1px;margin:0}h2{font-size:23px;letter-spacing:-.6px;margin:3px 0 8px}h3{font-size:15px;margin:0 0 10px}p{margin:6px 0 15px}.offline{border:1px solid var(--line);border-radius:20px;padding:6px 12px;font-size:12px;white-space:nowrap}.offline:before{content:'●';color:#397254;margin-right:7px}main{max-width:1200px;margin:auto;padding:0 28px 36px}.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:24px;padding-bottom:12px}.tab{border:0;background:transparent;color:var(--muted)}.tab[aria-selected=true]{background:var(--soft);color:var(--green)}.layout{display:grid;grid-template-columns:270px 1fr;gap:25px;align-items:start}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}.sidebar{display:grid;gap:18px}.field{display:grid;gap:6px;margin:15px 0}label,.label{font-size:12px;font-weight:700;color:#52635b}.field input,.field select{width:100%;min-width:0}.adaptive-option{display:flex;align-items:flex-start;gap:10px;font-size:13px;font-weight:650;color:#43564d;line-height:1.35;cursor:pointer;min-width:0}.field .adaptive-option input[type="checkbox"]{width:18px;height:18px;min-width:18px;flex:0 0 18px;margin:1px 0 0;padding:0;accent-color:var(--green)}.adaptive-option span{min-width:0}.adaptive-options{display:grid;gap:10px}.adaptive-section-label{margin-bottom:2px}.seed-row{display:flex;gap:7px}.seed-row input{min-width:0;width:100%}.wide{width:100%}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat strong{display:block;font-size:28px;font-weight:650;letter-spacing:-1px}.stat span{font-size:11px;color:var(--muted)}.text-button{background:none;border:0;padding:6px 0;font-size:12px;color:var(--muted);text-decoration:underline}.workspace{padding:25px 28px}.workspace-top{display:flex;justify-content:space-between;gap:16px;align-items:start}.badge{background:var(--soft);color:var(--green);border-radius:6px;padding:4px 8px;white-space:nowrap;font-size:11px;font-weight:700}.matrix{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:min(100%,435px);margin:20px auto 28px}.cell{aspect-ratio:1;background:#fcfcf9;border:1px solid var(--line);border-radius:9px;overflow:hidden}.cell svg,.answer svg{display:block;width:100%;height:100%}.cell.missing{border:1px dashed #969696;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:300;color:#333}.answer-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}.answers{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:12px 0 18px}.answer{padding:5px 8px 8px;border-radius:10px;position:relative;background:#fff;min-width:0}.answer svg{aspect-ratio:1;max-height:103px}.answer .letter{display:block;font-size:11px;line-height:20px;border-radius:5px;margin:auto;width:23px;background:#f0f2ed}.answer[aria-pressed=true]{border-color:var(--green);box-shadow:0 0 0 2px var(--green);background:#f2f7f1}.answer.correct{border-color:#347653;background:#eaf5e9;box-shadow:0 0 0 2px #347653}.answer.wrong{border-color:var(--red);box-shadow:0 0 0 2px var(--red);background:#fff0ec}.answer:disabled{opacity:1}.actions{display:flex;flex-wrap:wrap;gap:9px}.feedback{padding:14px 16px;border-radius:10px;margin-top:16px;background:var(--soft);border:1px solid var(--line)}.feedback.bad{background:#fff0ec}.feedback h3{margin:0 0 5px}.feedback p:last-child{margin-bottom:0}.feedback-reason-title{font-size:15px;margin:14px 0 6px;color:var(--ink)}.feedback-meta{margin-top:16px!important;padding-top:12px;border-top:1px solid var(--line);color:var(--muted)}.explanation{margin:8px 0 0;padding-left:20px}.explanation li{margin:7px 0}.foot{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding-top:16px;margin-top:22px;color:var(--muted);font-size:11px}.about{margin-top:22px;color:var(--muted);font-size:12px}.about summary{cursor:pointer;font-weight:650}.about p{max-width:850px;margin-top:12px}a{color:var(--green)}[hidden]{display:none!important}.lab-layout{display:grid;grid-template-columns:300px 1fr;gap:24px}.lab-display{min-height:480px;display:grid;place-items:center}.lab-display svg{width:min(100%,400px);height:auto}.inline{display:flex;gap:12px;align-items:center}.inline input{width:auto}.range-label{display:flex;justify-content:space-between}.transform-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.transform-grid label{display:flex;align-items:center;gap:6px;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:#fcfcf9;font-size:11px;font-weight:650;color:#43564d}.transform-grid input{width:auto;margin:0;padding:0}.transform-actions{display:flex;gap:7px}.transform-actions button{padding:6px 9px;font-size:11px}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:white;padding:10px 18px;border-radius:12px;z-index:2}.print-title{display:none}footer{font-size:11px;color:var(--muted);margin-top:22px}.help{font-size:12px;color:var(--muted)}
@@ -138,10 +138,7 @@ header .mark img{visibility:hidden}
 }
 </style>
 
-<style id="navigation-v12916">
-body.test-menu #practice .workspace{display:none!important}
-body.test-menu #practice .layout{display:block;max-width:720px;margin:0 auto}
-body.test-menu #practice .sidebar{width:min(100%,640px);margin:0 auto}
+<style id="navigation-v12917">
 body.adaptive-active #exit-test{
   position:fixed!important;
   top:max(12px,env(safe-area-inset-top));
@@ -162,6 +159,9 @@ body.adaptive-active #exit-test{
 }
 body.adaptive-active #exit-test:hover{background:var(--soft);color:var(--ink)}
 body.adaptive-active .workspace-top{padding-right:0}
+body.test-menu #practice .layout{display:block;max-width:720px;margin:0 auto}
+body.test-menu #practice .sidebar{display:block!important;width:min(100%,640px);margin:0 auto}
+body.test-menu #test-start-field{display:block!important}
 @media(max-width:480px){
   body.adaptive-active #exit-test{
     top:max(8px,env(safe-area-inset-top));
@@ -2984,7 +2984,7 @@ refreshTestIntroLanguage();
 renderTestIntroDemo();
 syncAdaptiveView();
 syncBlackWingMatrixTitle();
-if($('download-page'))$('download-page').onclick=()=>download('blackwingmatrix.V129.16.html','<!doctype html>\n'+document.documentElement.outerHTML,'text/html;charset=utf-8');
+if($('download-page'))$('download-page').onclick=()=>download('blackwingmatrix.V129.17.html','<!doctype html>\n'+document.documentElement.outerHTML,'text/html;charset=utf-8');
 </script>
 <script id="l10n-12915">
 (()=>{
@@ -3102,64 +3102,102 @@ const clear=document.getElementById('clear-analysis-data');if(clear)clear.onclic
 applyLanguage(activeLanguage);
 if(puzzle)renderCurrentPuzzle();
 })();
-</script><script id="navigation-v12916">
+</script><script id="navigation-v12917">
 (()=>{
-  function syncExerciseVisibility(){
-    const mode=$('play-mode')?.value||'practice';
-    const inIntro=Boolean(testIntroOpen||document.body.classList.contains('adaptive-intro'));
-    const hasTestSession=Boolean(testSession&&mode==='test');
-    const testMenu=mode==='test'&&!hasTestSession&&!inIntro;
-    document.body.classList.toggle('test-menu',testMenu);
+  const workspace=document.querySelector('#practice .workspace');
 
-    const workspace=document.querySelector('#practice .workspace');
-    if(workspace){
-      if(testMenu)workspace.setAttribute('aria-hidden','true');
-      else workspace.removeAttribute('aria-hidden');
-    }
+  function navigationState(){
+    const mode=$('play-mode')?.value||'practice';
+    const intro=Boolean(testIntroOpen||document.body.classList.contains('adaptive-intro'));
+    const testing=Boolean(testSession&&mode==='test');
+    const completed=Boolean(testing&&testSession.completed);
+    const active=Boolean(testing&&!completed);
+    const testMenu=Boolean(mode==='test'&&!testing&&!intro);
+    const single=Boolean(mode==='practice');
+    return{mode,intro,testing,completed,active,testMenu,single};
   }
 
-  const previousUpdatePlayMode=updatePlayMode;
-  updatePlayMode=function(){
-    previousUpdatePlayMode();
-    syncExerciseVisibility();
-  };
+  function syncNavigationState(){
+    const state=navigationState();
 
-  const previousSyncAdaptiveView=syncAdaptiveView;
-  syncAdaptiveView=function(){
-    previousSyncAdaptiveView();
-    syncExerciseVisibility();
+    document.body.classList.toggle('test-menu',state.testMenu);
 
-    const running=Boolean(testSession&&$('play-mode')?.value==='test'&&!testSession.completed);
-    exitTestButton.hidden=!running;
-    if(running){
+    if(workspace){
+      workspace.hidden=state.testMenu;
+      if(state.testMenu)workspace.setAttribute('aria-hidden','true');
+      else workspace.removeAttribute('aria-hidden');
+    }
+
+    const startField=$('test-start-field');
+    if(startField&&state.mode==='test'&&!state.testing)startField.hidden=false;
+
+    if(state.active){
+      exitTestButton.hidden=false;
       exitTestButton.textContent='×';
       exitTestButton.setAttribute('aria-label',t('mainMenu'));
       exitTestButton.setAttribute('title',t('mainMenu'));
     }else{
       exitTestButton.removeAttribute('title');
     }
+  }
+
+  const baseUpdatePlayMode=updatePlayMode;
+  updatePlayMode=function(){
+    baseUpdatePlayMode();
+    syncNavigationState();
   };
 
-  const previousShowTestIntro=showTestIntro;
+  const baseSyncAdaptiveView=syncAdaptiveView;
+  syncAdaptiveView=function(){
+    baseSyncAdaptiveView();
+    syncNavigationState();
+  };
+
+  const baseShowTestIntro=showTestIntro;
   showTestIntro=function(){
-    previousShowTestIntro();
-    syncExerciseVisibility();
+    document.body.classList.remove('test-menu');
+    if(workspace){
+      workspace.hidden=false;
+      workspace.removeAttribute('aria-hidden');
+    }
+    baseShowTestIntro();
+    syncNavigationState();
   };
 
-  const previousHideTestIntro=hideTestIntro;
+  const baseHideTestIntro=hideTestIntro;
   hideTestIntro=function(){
-    previousHideTestIntro();
-    syncExerciseVisibility();
+    baseHideTestIntro();
+    syncNavigationState();
   };
 
-  const previousReturnToMainMenu=returnToMainMenu;
+  const baseReturnToMainMenu=returnToMainMenu;
   returnToMainMenu=function(){
-    previousReturnToMainMenu();
-    syncExerciseVisibility();
+    baseReturnToMainMenu();
+    syncNavigationState();
   };
 
-  $('play-mode')?.addEventListener('change',syncExerciseVisibility);
-  syncExerciseVisibility();
+  const startButton=$('test-start');
+  if(startButton){
+    startButton.hidden=false;
+    startButton.disabled=false;
+    startButton.onclick=()=>showTestIntro();
+  }
+
+  const introStart=$('intro-start-test');
+  if(introStart)introStart.onclick=()=>{
+    beginAdaptiveTestFromIntro();
+    syncNavigationState();
+  };
+
+  const introClose=$('test-intro-close');
+  if(introClose)introClose.onclick=()=>returnToMainMenu();
+
+  if(exitTestButton)exitTestButton.onclick=()=>returnToMainMenu();
+  if(resultCloseButton)resultCloseButton.onclick=()=>returnToMainMenu();
+
+  $('play-mode')?.addEventListener('change',syncNavigationState);
+
+  syncNavigationState();
   syncAdaptiveView();
 })();
 </script>
