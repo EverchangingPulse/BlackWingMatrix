@@ -2,13 +2,19 @@
 
 **BlackWingMatrix** è un'applicazione web standalone per esercizi di ragionamento astratto e visuospaziale basati su matrici logiche 3×3.
 
-Versione corrente: **1.29.14**.
+Versione corrente: **1.29.15**.
 
 Genera dinamicamente problemi visivi nei quali bisogna individuare la figura mancante scegliendo fra otto possibili risposte. Include numerose famiglie di esercizi, livelli di difficoltà differenti, spiegazioni degli errori e una modalità di **test adattivo** che modifica progressivamente la complessità degli esercizi in funzione delle risposte date.
 
 BlackWingMatrix funziona interamente nel browser: dopo il download non richiede server, installazione, account o connessione Internet.
 
 > **Importante:** BlackWingMatrix è uno strumento sperimentale di esercitazione e valutazione relativa del ragionamento visivo. Non è un test di intelligenza standardizzato. I suoi punteggi non devono essere interpretati come IQ, diagnosi cliniche o valutazioni psicometriche certificate.
+
+## Versione online
+
+**[Apri BlackWingMatrix nel browser](https://everchangingpulse.github.io/BlackWingMatrix/)**
+
+La versione GitHub Pages si apre direttamente nel browser e non richiede il download del file HTML.
 
 ## Download diretto
 
@@ -166,7 +172,7 @@ Durante il test adattivo è possibile scegliere se visualizzare la difficoltà d
 
 Con la visualizzazione disattivata, questi valori restano nascosti per evitare che un aumento o una diminuzione suggerisca indirettamente l'esito della risposta precedente.
 
-Con la visualizzazione attivata, il programma può mostrare i valori numerici e le relative categorie qualitative anche durante il test. La stessa preferenza controlla il dettaglio numerico del riepilogo finale.
+La visualizzazione dei valori numerici durante il test e quella dei valori numerici nel riepilogo finale sono controllate da due opzioni indipendenti, entrambe disattivate per impostazione predefinita.
 
 ## Risposte troppo rapide
 
