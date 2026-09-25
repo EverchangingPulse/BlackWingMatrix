@@ -15,7 +15,7 @@
 
 **BlackWingMatrix** to samodzielna aplikacja internetowa do ćwiczenia rozumowania abstrakcyjnego i wzrokowo-przestrzennego za pomocą proceduralnie generowanych macierzy logicznych 3×3.
 
-Aktualna wersja: **1.29.15**.
+Aktualna wersja: **1.29.16**.
 
 ## Wypróbuj online
 
