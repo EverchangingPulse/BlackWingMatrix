@@ -2659,44 +2659,35 @@ function clampAdaptive(value,min=1,max=60){return Math.max(min,Math.min(max,Numb
 function adaptiveExpectedSuccess(ability,difficulty){return 1/(1+Math.exp((clampAdaptive(difficulty)-clampAdaptive(ability))/ADAPTIVE_RESPONSE_SCALE))}
 function adaptiveValidOutcomes(session){return(session?.outcomes||[]).filter(outcome=>outcome.evaluationIncluded!==false)}
 function adaptiveReferenceSession(source){
- const calibration=adaptiveValidOutcomes(source).slice(0,3);
- if(calibration.length<3)return null;
- const shadow={seed:source.seed,total:Math.max(3,Number(source.total)||60),index:0,score:35,outcomes:[],puzzleKeys:[],mode:source.mode||'standard'};
- for(let index=0;index<3;index++){
-  const candidate=selectCalibrationPuzzle(shadow,index);
-  if(candidate?.key)shadow.puzzleKeys.push(candidate.key);
-  const outcome={...calibration[index],evaluationIncluded:true};
-  shadow.outcomes.push(outcome);
-  const score=Number(outcome.score);
-  if(Number.isFinite(score))shadow.score=clampAdaptive(score);
-  shadow.index=index+1
- }
- return shadow
+ const attempts=source?.outcomes||[];let valid=0,calibrationEnd=-1;
+ for(let index=0;index<attempts.length;index++)if(attempts[index].evaluationIncluded!==false&&++valid===3){calibrationEnd=index;break}
+ if(calibrationEnd<0)return null;
+ const calibrationAttempts=attempts.slice(0,calibrationEnd+1).map(outcome=>({...outcome})),lastCalibration=calibrationAttempts[calibrationAttempts.length-1],score=Number(lastCalibration?.score);
+ return{seed:source.seed,total:Math.max(3,Number(source.total)||60),index:calibrationAttempts.length,score:Number.isFinite(score)?clampAdaptive(score):35,outcomes:calibrationAttempts,puzzleKeys:(source.puzzleKeys||[]).slice(0,calibrationAttempts.length),mode:source.mode||'standard'}
 }
 function simulateAdaptiveReferenceAverage(source,count,correct){
  const shadow=adaptiveReferenceSession(source),total=Math.max(0,Math.floor(Number(count)||0));
  if(!shadow||!total)return null;
  const scores=[];
  for(let step=0;step<total;step++){
-  shadow.index=3+step;
   const candidate=selectAdaptivePuzzle(shadow);
   if(!candidate)break;
   const itemScore=clampAdaptive(candidate.difficulty),scoredItem=+itemScore.toFixed(1),abilityBefore=clampAdaptive(shadow.score||35),expected=adaptiveExpectedSuccess(abilityBefore,itemScore),k=gentleAdaptiveResponseK(shadow,correct,false),abilityAfter=clampAdaptive(abilityBefore+k*((correct?1:0)-expected));
   shadow.score=abilityAfter;
   if(candidate.key)shadow.puzzleKeys.push(candidate.key);
   shadow.outcomes.push({exercise:shadow.index+1,correct,result:correct?'correct':'error',evaluationIncluded:true,tier:candidate.tier,family:candidate.family,itemScore:scoredItem,targetDifficulty:+clampAdaptive(candidate.target||itemScore).toFixed(1),abilityBefore:+abilityBefore.toFixed(1),expected:+expected.toFixed(3),score:+abilityAfter.toFixed(1)});
-  scores.push(scoredItem)
+  scores.push(scoredItem);shadow.index++
  }
  return scores.length?scores.reduce((sum,value)=>sum+value,0)/scores.length:null
 }
-function adaptiveRangeComparison(session,actualAverage,count){
- const n=Math.max(0,Math.floor(Number(count)||0)),actual=Number(actualAverage);
+function adaptiveRangeComparison(session,actualMeanDifficulty,count){
+ const n=Math.max(0,Math.floor(Number(count)||0)),actual=Number(actualMeanDifficulty);
  if(!session||!n||!Number.isFinite(actual))return null;
  const cacheKey=[session.mode||'standard',session.seed,n,adaptiveValidOutcomes(session).slice(0,3).map(outcome=>[outcome.correct,outcome.itemScore,outcome.score,outcome.family].join(':')).join('|')].join('::');
  if(session._adaptiveRangeComparison?.key===cacheKey&&Math.abs(session._adaptiveRangeComparison.actual-actual)<1e-9)return session._adaptiveRangeComparison.value;
  const allWrong=simulateAdaptiveReferenceAverage(session,n,false),allCorrect=simulateAdaptiveReferenceAverage(session,n,true);
  if(!Number.isFinite(allWrong)||!Number.isFinite(allCorrect)||Math.abs(allCorrect-allWrong)<1e-9)return null;
- const minimum=Math.min(allWrong,allCorrect),maximum=Math.max(allWrong,allCorrect),rawPosition=(actual-minimum)/(maximum-minimum)*100,position=Math.max(0,Math.min(100,rawPosition)),value={count:n,allWrongAverage:allWrong,allCorrectAverage:allCorrect,minimumAverage:minimum,maximumAverage:maximum,rawPosition,position};
+ const minimum=Math.min(allWrong,allCorrect),maximum=Math.max(allWrong,allCorrect),rawPosition=(actual-minimum)/(maximum-minimum)*100,position=Math.max(0,Math.min(100,rawPosition)),value={count:n,actualMeanDifficulty:actual,allWrongAverage:allWrong,allCorrectAverage:allCorrect,minimumAverage:minimum,maximumAverage:maximum,rawPosition,position};
  session._adaptiveRangeComparison={key:cacheKey,actual,value};
  return value
 }
@@ -3205,12 +3196,14 @@ responseTimingSummary=function(seconds,inTest,validForEvaluation){
   return'Response time: '+s+' seconds. '+(inTest?(validForEvaluation?'This response will be used to calculate the next exercise.':'This response will not be used to calculate the next exercise.'):'');
 };
 resultStabilityLabel=function(key){return loc().result.stabilityValues[key]||loc().result.stabilityValues.unavailable};
-resultContextSentence=function(stabilityKey,coveragePercent){const c=loc().result.context;if(coveragePercent>=70&&stabilityKey==='variable')return c.broadVariable;if(coveragePercent>=70)return c.broad;if(coveragePercent<50)return c.narrow;return c.substantial};
+function resultCoverageUnavailable(){const messages={it:'Il campione valutato è troppo breve per stimare la varietà del percorso.',en:'The scored sample is too short to estimate exercise-type coverage.',fr:'L’échantillon évalué est trop court pour estimer la variété du parcours.',de:'Die bewertete Stichprobe ist zu kurz, um die Vielfalt des Verlaufs zu schätzen.',es:'La muestra evaluada es demasiado corta para estimar la variedad del recorrido.',pt:'A amostra avaliada é demasiado curta para estimar a variedade do percurso.',nl:'De beoordeelde steekproef is te klein om de variatie van het traject te schatten.',pl:'Oceniona próba jest zbyt krótka, aby oszacować różnorodność przebiegu.'};return messages[activeLanguage]||messages.en}
+resultContextSentence=function(stabilityKey,coveragePercent){if(!Number.isFinite(coveragePercent))return resultCoverageUnavailable();const c=loc().result.context;if(coveragePercent>=70&&stabilityKey==='variable')return c.broadVariable;if(coveragePercent>=70)return c.broad;if(coveragePercent<50)return c.narrow;return c.substantial};
 
 finishAdaptiveTest=function(expired){
  if(!testSession||testSession.completed)return;
  stopTestTimer();
- const validOutcomes=adaptiveValidOutcomes(testSession),scoredOutcomes=validOutcomes.slice(3),ignoredOutcomes=(testSession.outcomes||[]).filter(o=>o.evaluationIncluded===false),itemScores=scoredOutcomes.map(o=>Number(o.itemScore)).filter(Number.isFinite),correctItemScores=scoredOutcomes.filter(o=>o.correct).map(o=>Number(o.itemScore)).filter(Number.isFinite),mean=a=>a.length?a.reduce((sum,value)=>sum+value,0)/a.length:null,average=mean(itemScores),maximumCorrect=correctItemScores.length?Math.max(...correctItemScores):null,range=difficultyScaleRange(),averageDifficulty=average===null?'—':relativeDifficulty(average,range),maximumCorrectDifficulty=maximumCorrect===null?'—':relativeDifficulty(maximumCorrect,range),stability=resultStability(scoredOutcomes),stabilityLabel=resultStabilityLabel(stability.labelKey),coverage=resultTypeCoverage(scoredOutcomes),postCorrect=scoredOutcomes.filter(o=>o.correct).length,elapsed=elapsedTestTime(testSession.startedAt),hideNumeric=!(testSession.showFinalNumericResultsAtStart??showFinalNumericResults()),averageValue=average===null?'—':hideNumeric?averageDifficulty:average.toFixed(1)+'/60 · '+averageDifficulty,maximumValue=maximumCorrect===null?'—':hideNumeric?maximumCorrectDifficulty:maximumCorrect.toFixed(1)+'/60 · '+maximumCorrectDifficulty,coverageValue=coverage.percent===null?'—':coverage.percent+'%',rangeComparison=adaptiveRangeComparison(testSession,average,scoredOutcomes.length),rangeCopy=adaptiveRangeResultCopy(),rangePosition=rangeComparison?Math.round(rangeComparison.position):null,rangeValue=rangePosition===null?'—':hideNumeric?adaptiveRangeQualitativeMessage(rangeComparison.position,testSession,rangeCopy):rangePosition+'%',wrongEndpoint=rangeComparison?rangeCopy.wrong+' · '+rangeComparison.allWrongAverage.toFixed(1)+'/60':rangeCopy.wrong,correctEndpoint=rangeComparison?rangeCopy.correct+' · '+rangeComparison.allCorrectAverage.toFixed(1)+'/60':rangeCopy.correct,rangeVisualization=rangeComparison&&!hideNumeric?'<div class="result-range-track" aria-hidden="true"><span class="result-range-marker" style="left:'+rangeComparison.position.toFixed(2)+'%"></span></div><div class="result-range-scale"><span>'+wrongEndpoint+'</span><span>'+correctEndpoint+'</span></div>':'',rangeCard='<div class="result-card result-range-card"><span class="result-label">'+rangeCopy.label+'</span><strong>'+rangeValue+'</strong>'+rangeVisualization+'<div class="result-caption">'+rangeCopy.caption+'</div></div>',r=loc().result,completionText=expired?r.expired:r.maximumReached,ignoredText=ignoredOutcomes.length?fmt(r.ignored,{n:ignoredOutcomes.length}):'',numericNote=hideNumeric?r.numericHidden:'',methodNote=fmt(r.method,{ms:MIN_VALID_RESPONSE_MS})+numericNote,insight=resultContextSentence(stability.labelKey,coverage.percent);
+ const validOutcomes=adaptiveValidOutcomes(testSession),scoredOutcomes=validOutcomes.slice(3),ignoredOutcomes=(testSession.outcomes||[]).filter(o=>o.evaluationIncluded===false),itemScores=scoredOutcomes.map(o=>Number(o.itemScore)).filter(Number.isFinite),correctItemScores=scoredOutcomes.filter(o=>o.correct).map(o=>Number(o.itemScore)).filter(Number.isFinite),mean=values=>values.length?values.reduce((sum,value)=>sum+value,0)/values.length:null,average=mean(itemScores),maximumCorrect=correctItemScores.length?Math.max(...correctItemScores):null,range=difficultyScaleRange(),averageDifficulty=average===null?'—':relativeDifficulty(average,range),maximumCorrectDifficulty=maximumCorrect===null?'—':relativeDifficulty(maximumCorrect,range),stability=resultStability(scoredOutcomes),stabilityLabel=resultStabilityLabel(stability.labelKey),coverage=resultTypeCoverage(scoredOutcomes),postCorrect=scoredOutcomes.filter(o=>o.correct).length,elapsed=elapsedTestTime(testSession.startedAt),hideNumeric=!(testSession.showFinalNumericResultsAtStart??showFinalNumericResults()),averageValue=average===null?'—':hideNumeric?averageDifficulty:average.toFixed(1)+'/60 · '+averageDifficulty,maximumValue=maximumCorrect===null?'—':hideNumeric?maximumCorrectDifficulty:maximumCorrect.toFixed(1)+'/60 · '+maximumCorrectDifficulty,coverageValue=coverage.percent===null?'—':coverage.percent+'%',rangeComparison=adaptiveRangeComparison(testSession,average,itemScores.length),rangeCopy=adaptiveRangeResultCopy(),r=loc().result,completionText=expired?r.expired:r.maximumReached,ignoredText=ignoredOutcomes.length?fmt(r.ignored,{n:ignoredOutcomes.length}):'',numericNote=hideNumeric?r.numericHidden:'',methodNote=fmt(r.method,{ms:MIN_VALID_RESPONSE_MS})+numericNote,insight=resultContextSentence(stability.labelKey,coverage.percent);
+ const rangeCard=!rangeComparison?'':(()=>{const rangePosition=Math.round(rangeComparison.position),rangeValue=hideNumeric?adaptiveRangeQualitativeMessage(rangeComparison.position,testSession,rangeCopy):rangePosition+'%',wrongEndpoint=rangeCopy.wrong+' · '+rangeComparison.allWrongAverage.toFixed(1)+'/60',correctEndpoint=rangeCopy.correct+' · '+rangeComparison.allCorrectAverage.toFixed(1)+'/60',rangeVisualization=hideNumeric?'':'<div class="result-range-track" aria-hidden="true"><span class="result-range-marker" style="left:'+rangeComparison.position.toFixed(2)+'%"></span></div><div class="result-range-scale"><span>'+wrongEndpoint+'</span><span>'+correctEndpoint+'</span></div>';return'<div class="result-card result-range-card"><span class="result-label">'+rangeCopy.label+'</span><strong>'+rangeValue+'</strong>'+rangeVisualization+'<div class="result-caption">'+rangeCopy.caption+'</div></div>'})();
  const labels=r;
  $('feedback').hidden=false;$('feedback').className='feedback';
  $('feedback').innerHTML='<h3>'+labels.title+'</h3><div class="result-grid"><div class="result-card"><span class="result-label">'+labels.average+'</span><strong>'+averageValue+'</strong><div class="result-caption">'+labels.averageCaption+'</div></div><div class="result-card"><span class="result-label">'+labels.maximum+'</span><strong>'+maximumValue+'</strong><div class="result-caption">'+labels.maximumCaption+'</div></div><div class="result-card"><span class="result-label">'+labels.stability+'</span><strong>'+stabilityLabel+'</strong><div class="result-caption">'+labels.stabilityCaption+'</div></div><div class="result-card"><span class="result-label">'+labels.coverage+'</span><strong>'+coverageValue+'</strong><div class="result-caption">'+labels.coverageCaption+'</div></div>'+rangeCard+'</div><p class="result-insight">'+insight+'</p><p class="result-details"><strong>'+labels.correct+':</strong> '+postCorrect+' / '+scoredOutcomes.length+' · <strong>'+labels.evaluated+':</strong> '+scoredOutcomes.length+' · <strong>'+labels.duration+':</strong> '+elapsed+'</p><p class="result-details"><strong>'+labels.ending+':</strong> '+completionText+(ignoredText?' · '+ignoredText:'')+'</p><p class="result-method">'+methodNote+'</p><p class="result-thanks">'+labels.thanks+'</p>';
