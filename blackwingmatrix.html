@@ -3243,6 +3243,146 @@ const clear=document.getElementById('clear-analysis-data');if(clear)clear.onclic
 
 applyLanguage(activeLanguage);
 if(puzzle)renderCurrentPuzzle();
++(()=>{
+  const PROGRESSIVE_MODES=['test-survey','test-relation'];
+  const RELATION_FAMILIES={
+    spatial:['affine','dot-arrangement','line-assembly','spatial-tokens','polyomino','spoke-pattern','paired-polygons'],
+    boolean:['logical','grid-logic','line-xor','axis-symbols','horizontal-anchors','block-balance','dot-balance'],
+    rows:['composition','block-balance','dot-balance','horizontal-anchors','motif-count'],
+    columns:['carrier-token','shape-fill','spatial-tokens','marker-grid','fill-grid'],
+    diagonals:['split-fill','symbol-order','radial-flower','fill-grid','spoke-pattern'],
+    border:['outline','logical','custom','line-xor','horizontal-anchors'],
+    sequences:['marker-grid','line-assembly','dot-arrangement','polyomino','motif-count','paired-polygons']
+  };
+  const MODE_COPY={
+    it:{survey:'Test panoramico progressivo',relation:'Test per relazione logica',relationLabel:'Relazione logica',surveyHelp:'Affronta una matrice per ogni famiglia disponibile nella fascia corrente; poi la fascia sale di 5 punti fino allo scadere del tempo.',relationHelp:'Scegli una relazione: il test usa soltanto le famiglie che la applicano e sale di 5 punti dopo averle percorse tutte.',prepareSurvey:'Prepara test panoramico ↗',prepareRelation:'Prepara test per relazione ↗',startSurvey:'Inizia il test panoramico',startRelation:'Inizia il test per relazione',surveyTitle:'Test panoramico progressivo',relationTitle:'Test per relazione logica',surveyIntro:'Ogni fascia propone una matrice per ogni famiglia disponibile. Dopo averle percorse tutte, la difficoltà sale di 5 punti.',relationIntro:'Tutte le matrici applicano “{relation}”. Le famiglie disponibili ruotano nella fascia corrente, poi la difficoltà sale di 5 punti.',band:'Fascia di difficoltà',familyProgress:'Famiglia {current} di {total}',complete:'Test progressivo completato',expired:'Tempo scaduto',results:'Risultato del test progressivo',correct:'Risposte corrette',answered:'Risposte completate',duration:'Durata',ending:'Fine',thanks:'Grazie per il tempo dedicato a questo esercizio di ragionamento.',relations:{spatial:'Trasformazioni spaziali',boolean:'Logica booleana',rows:'Relazioni tra righe',columns:'Relazioni tra colonne',diagonals:'Relazioni tra diagonali',border:'Relazioni tra bordo e figura',sequences:'Progressioni, cicli e altre relazioni'}},
+    en:{survey:'Progressive overview test',relation:'Logical-relation test',relationLabel:'Logical relation',surveyHelp:'Work through one matrix from every available family in the current band; then the band rises by 5 points until time expires.',relationHelp:'Choose a relation: the test uses only families that apply it and rises by 5 points after cycling through them.',prepareSurvey:'Prepare overview test ↗',prepareRelation:'Prepare relation test ↗',startSurvey:'Start overview test',startRelation:'Start relation test',surveyTitle:'Progressive overview test',relationTitle:'Logical-relation test',surveyIntro:'Each band offers one matrix from every available family. After all of them, difficulty rises by 5 points.',relationIntro:'Every matrix applies “{relation}”. Available families rotate in the current band, then difficulty rises by 5 points.',band:'Difficulty band',familyProgress:'Family {current} of {total}',complete:'Progressive test complete',expired:'Time expired',results:'Progressive test result',correct:'Correct answers',answered:'Completed answers',duration:'Duration',ending:'Ending',thanks:'Thank you for the time and attention given to this reasoning exercise.',relations:{spatial:'Spatial transformations',boolean:'Boolean logic',rows:'Row relationships',columns:'Column relationships',diagonals:'Diagonal relationships',border:'Border-to-figure relationships',sequences:'Progressions, cycles and other relationships'}}
+  };
+  Object.assign(MODE_COPY,{
+    fr:{...MODE_COPY.en,survey:'Test panoramique progressif',relation:'Test par relation logique',relationLabel:'Relation logique',surveyHelp:'Résolvez une matrice de chaque famille disponible dans la plage actuelle ; la plage augmente ensuite de 5 points jusqu’à la fin du temps.',relationHelp:'Choisissez une relation : le test utilise seulement les familles qui l’appliquent et augmente de 5 points après les avoir toutes parcourues.',prepareSurvey:'Préparer le test panoramique ↗',prepareRelation:'Préparer le test par relation ↗',startSurvey:'Commencer le test panoramique',startRelation:'Commencer le test par relation',surveyTitle:'Test panoramique progressif',relationTitle:'Test par relation logique',surveyIntro:'Chaque plage propose une matrice de chaque famille disponible. Après les avoir toutes parcourues, la difficulté augmente de 5 points.',relationIntro:'Chaque matrice applique « {relation} ». Les familles disponibles tournent dans la plage actuelle, puis la difficulté augmente de 5 points.',band:'Plage de difficulté',familyProgress:'Famille {current} sur {total}',complete:'Test progressif terminé',expired:'Temps écoulé',results:'Résultat du test progressif',correct:'Réponses correctes',answered:'Réponses terminées',duration:'Durée',ending:'Fin',thanks:'Merci pour le temps et l’attention consacrés à cet exercice de raisonnement.',relations:{spatial:'Transformations spatiales',boolean:'Logique booléenne',rows:'Relations entre lignes',columns:'Relations entre colonnes',diagonals:'Relations diagonales',border:'Relations entre bord et figure',sequences:'Progressions, cycles et autres relations'}},
+    de:{...MODE_COPY.en,survey:'Progressiver Überblickstest',relation:'Test nach logischer Beziehung',relationLabel:'Logische Beziehung',surveyHelp:'Bearbeite eine Matrix aus jeder verfügbaren Familie im aktuellen Bereich; anschließend steigt der Bereich bis zum Ablauf der Zeit um 5 Punkte.',relationHelp:'Wähle eine Beziehung: Der Test verwendet nur Familien, die sie anwenden, und steigt nach einem vollständigen Durchlauf um 5 Punkte.',prepareSurvey:'Überblickstest vorbereiten ↗',prepareRelation:'Beziehungstest vorbereiten ↗',startSurvey:'Überblickstest starten',startRelation:'Beziehungstest starten',surveyTitle:'Progressiver Überblickstest',relationTitle:'Test nach logischer Beziehung',surveyIntro:'Jeder Bereich bietet eine Matrix aus jeder verfügbaren Familie. Danach steigt die Schwierigkeit um 5 Punkte.',relationIntro:'Jede Matrix verwendet „{relation}“. Verfügbare Familien rotieren im aktuellen Bereich, danach steigt die Schwierigkeit um 5 Punkte.',band:'Schwierigkeitsbereich',familyProgress:'Familie {current} von {total}',complete:'Progressiver Test abgeschlossen',expired:'Zeit abgelaufen',results:'Ergebnis des progressiven Tests',correct:'Richtige Antworten',answered:'Bearbeitete Antworten',duration:'Dauer',ending:'Ende',thanks:'Danke für Zeit und Aufmerksamkeit bei dieser Denkaufgabe.',relations:{spatial:'Räumliche Transformationen',boolean:'Boolesche Logik',rows:'Zeilenbeziehungen',columns:'Spaltenbeziehungen',diagonals:'Diagonale Beziehungen',border:'Beziehungen zwischen Rand und Figur',sequences:'Progressionen, Zyklen und andere Beziehungen'}},
+    es:{...MODE_COPY.en,survey:'Prueba panorámica progresiva',relation:'Prueba por relación lógica',relationLabel:'Relación lógica',surveyHelp:'Resuelve una matriz de cada familia disponible en el rango actual; después el rango sube 5 puntos hasta que termine el tiempo.',relationHelp:'Elige una relación: la prueba usa solo las familias que la aplican y sube 5 puntos tras recorrerlas todas.',prepareSurvey:'Preparar prueba panorámica ↗',prepareRelation:'Preparar prueba por relación ↗',startSurvey:'Iniciar prueba panorámica',startRelation:'Iniciar prueba por relación',surveyTitle:'Prueba panorámica progresiva',relationTitle:'Prueba por relación lógica',surveyIntro:'Cada rango ofrece una matriz de cada familia disponible. Tras completarlas todas, la dificultad sube 5 puntos.',relationIntro:'Todas las matrices aplican «{relation}». Las familias disponibles rotan en el rango actual y luego la dificultad sube 5 puntos.',band:'Rango de dificultad',familyProgress:'Familia {current} de {total}',complete:'Prueba progresiva completada',expired:'Tiempo agotado',results:'Resultado de la prueba progresiva',correct:'Respuestas correctas',answered:'Respuestas completadas',duration:'Duración',ending:'Final',thanks:'Gracias por el tiempo y la atención dedicados a este ejercicio de razonamiento.',relations:{spatial:'Transformaciones espaciales',boolean:'Lógica booleana',rows:'Relaciones entre filas',columns:'Relaciones entre columnas',diagonals:'Relaciones diagonales',border:'Relaciones entre borde y figura',sequences:'Progresiones, ciclos y otras relaciones'}},
+    pt:{...MODE_COPY.en,survey:'Teste panorâmico progressivo',relation:'Teste por relação lógica',relationLabel:'Relação lógica',surveyHelp:'Resolva uma matriz de cada família disponível na faixa atual; depois a faixa sobe 5 pontos até o tempo terminar.',relationHelp:'Escolha uma relação: o teste usa apenas as famílias que a aplicam e sobe 5 pontos depois de percorrê-las todas.',prepareSurvey:'Preparar teste panorâmico ↗',prepareRelation:'Preparar teste por relação ↗',startSurvey:'Iniciar teste panorâmico',startRelation:'Iniciar teste por relação',surveyTitle:'Teste panorâmico progressivo',relationTitle:'Teste por relação lógica',surveyIntro:'Cada faixa oferece uma matriz de cada família disponível. Depois de todas, a dificuldade sobe 5 pontos.',relationIntro:'Todas as matrizes aplicam «{relation}». As famílias disponíveis rodam na faixa atual e a dificuldade sobe 5 pontos.',band:'Faixa de dificuldade',familyProgress:'Família {current} de {total}',complete:'Teste progressivo concluído',expired:'Tempo esgotado',results:'Resultado do teste progressivo',correct:'Respostas corretas',answered:'Respostas concluídas',duration:'Duração',ending:'Fim',thanks:'Obrigado pelo tempo e atenção dedicados a este exercício de raciocínio.',relations:{spatial:'Transformações espaciais',boolean:'Lógica booleana',rows:'Relações entre linhas',columns:'Relações entre colunas',diagonals:'Relações diagonais',border:'Relações entre borda e figura',sequences:'Progressões, ciclos e outras relações'}},
+    nl:{...MODE_COPY.en,survey:'Progressieve overzichtstest',relation:'Test per logische relatie',relationLabel:'Logische relatie',surveyHelp:'Maak één matrix van elke beschikbare familie in de huidige band; daarna stijgt de band met 5 punten tot de tijd op is.',relationHelp:'Kies een relatie: de test gebruikt alleen families die deze toepassen en stijgt met 5 punten nadat ze allemaal aan bod kwamen.',prepareSurvey:'Overzichtstest voorbereiden ↗',prepareRelation:'Relatietest voorbereiden ↗',startSurvey:'Overzichtstest starten',startRelation:'Relatietest starten',surveyTitle:'Progressieve overzichtstest',relationTitle:'Test per logische relatie',surveyIntro:'Elke band biedt één matrix van elke beschikbare familie. Daarna stijgt de moeilijkheid met 5 punten.',relationIntro:'Elke matrix gebruikt „{relation}”. Beschikbare families rouleren binnen de huidige band; daarna stijgt de moeilijkheid met 5 punten.',band:'Moeilijkheidsband',familyProgress:'Familie {current} van {total}',complete:'Progressieve test voltooid',expired:'Tijd verstreken',results:'Resultaat van de progressieve test',correct:'Juiste antwoorden',answered:'Voltooide antwoorden',duration:'Duur',ending:'Einde',thanks:'Bedankt voor de tijd en aandacht voor deze redeneeroefening.',relations:{spatial:'Ruimtelijke transformaties',boolean:'Booleaanse logica',rows:'Rijrelaties',columns:'Kolomrelaties',diagonals:'Diagonale relaties',border:'Relaties tussen rand en figuur',sequences:'Progressies, cycli en andere relaties'}},
+    pl:{...MODE_COPY.en,survey:'Progresywny test przekrojowy',relation:'Test relacji logicznej',relationLabel:'Relacja logiczna',surveyHelp:'Rozwiąż po jednej macierzy z każdej dostępnej rodziny w bieżącym zakresie; potem zakres rośnie o 5 punktów aż do końca czasu.',relationHelp:'Wybierz relację: test używa tylko rodzin, które ją stosują, i zwiększa poziom o 5 punktów po przejściu przez wszystkie.',prepareSurvey:'Przygotuj test przekrojowy ↗',prepareRelation:'Przygotuj test relacji ↗',startSurvey:'Rozpocznij test przekrojowy',startRelation:'Rozpocznij test relacji',surveyTitle:'Progresywny test przekrojowy',relationTitle:'Test relacji logicznej',surveyIntro:'Każdy zakres oferuje jedną macierz z każdej dostępnej rodziny. Potem trudność wzrasta o 5 punktów.',relationIntro:'Każda macierz stosuje „{relation}”. Dostępne rodziny rotują w bieżącym zakresie, potem trudność wzrasta o 5 punktów.',band:'Zakres trudności',familyProgress:'Rodzina {current} z {total}',complete:'Test progresywny zakończony',expired:'Czas minął',results:'Wynik testu progresywnego',correct:'Poprawne odpowiedzi',answered:'Ukończone odpowiedzi',duration:'Czas trwania',ending:'Koniec',thanks:'Dziękujemy za czas i uwagę poświęcone temu ćwiczeniu rozumowania.',relations:{spatial:'Transformacje przestrzenne',boolean:'Logika boolowska',rows:'Relacje między wierszami',columns:'Relacje między kolumnami',diagonals:'Relacje diagonalne',border:'Relacje między obramowaniem a figurą',sequences:'Progresje, cykle i inne relacje'}}
+  });
+  const copy=()=>MODE_COPY[activeLanguage]||MODE_COPY.en;
+  const progressiveMode=mode=>PROGRESSIVE_MODES.includes(mode||adaptiveModeValue());
+  const isProgressiveSession=session=>Boolean(session&&progressiveMode(session.mode));
+  const escapeHtml=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const interpolate=(template,values)=>String(template).replace(/\{(\w+)\}/g,(match,key)=>values[key]??match);
+  const relationName=value=>copy().relations[value]||MODE_COPY.en.relations[value]||value;
+  const modeName=value=>value==='test-survey'?copy().survey:copy().relation;
+  const isAdaptiveModeBeforeProgressive=isAdaptiveMode;
+  isAdaptiveMode=function(){return isAdaptiveModeBeforeProgressive()||progressiveMode()};
+
+  function installProgressiveControls(){
+    const playMode=$('play-mode');
+    if(!playMode||$('progressive-relation-field'))return;
+    const survey=document.createElement('option');survey.value='test-survey';survey.id='survey-test-option';
+    const relation=document.createElement('option');relation.value='test-relation';relation.id='relation-test-option';
+    playMode.append(survey,relation);
+    const field=document.createElement('div');field.className='field';field.id='progressive-relation-field';
+    field.innerHTML='<label for="test-relation">Relazione logica</label><select id="test-relation"><option value="spatial"></option><option value="boolean"></option><option value="rows"></option><option value="columns"></option><option value="diagonals"></option><option value="border"></option><option value="sequences"></option></select><span class="help"></span>';
+    $('test-start-field')?.before(field);
+  }
+  function refreshProgressiveCopy(){
+    const c=copy(),mode=adaptiveModeValue(),playMode=$('play-mode');
+    if(playMode){const survey=playMode.querySelector('#survey-test-option'),relation=playMode.querySelector('#relation-test-option');if(survey)survey.textContent=c.survey;if(relation)relation.textContent=c.relation}
+    const field=$('progressive-relation-field');
+    if(field){field.querySelector('label').textContent=c.relationLabel;field.querySelector('.help').textContent=c.relationHelp;for(const option of field.querySelectorAll('option'))option.textContent=relationName(option.value);field.hidden=mode!=='test-relation'}
+    const testing=isAdaptiveMode(),custom=progressiveMode(mode),relationTest=mode==='test-relation';
+    if($('test-length-field'))$('test-length-field').hidden=!testing||custom;
+    if($('test-timer-field'))$('test-timer-field').hidden=!testing;
+    if($('test-start-field')){
+      $('test-start-field').hidden=!testing;
+      const label=$('test-start-field').querySelector('.label'),help=$('test-start-field').querySelector('.help');
+      if(label)label.textContent=custom?modeName(mode):t('testMode');
+      if(help)help.textContent=custom?(relationTest?c.relationHelp:c.surveyHelp):t('testStartHelp');
+    }
+    if($('play-mode-help'))$('play-mode-help').textContent=custom?(relationTest?c.relationHelp:c.surveyHelp):isGentleAdaptiveMode()?gentleAdaptiveHelp():t('startCalibration');
+    if($('test-start'))$('test-start').textContent=custom?(relationTest?c.prepareRelation:c.prepareSurvey):(isGentleAdaptiveMode()?(activeLanguage==='it'?'Prepara test adattivo graduale ↗':'Prepare gradual adaptive test ↗'):t('prepareAdaptiveTest'));
+  }
+
+  function availableFamilies(pool,band){
+    const candidates=pool.filter(family=>Object.prototype.hasOwnProperty.call(EMPIRICAL_FAMILY_LEVELS,family));
+    const current=candidates.filter(family=>Math.abs((EMPIRICAL_FAMILY_LEVELS[family]||30)-band)<=7.5);
+    return current.length?current:candidates.filter(family=>(EMPIRICAL_FAMILY_LEVELS[family]||30)>=band-5&&family!=='custom').slice(0,4);
+  }
+  function progressiveInitialBand(pool){
+    const values=pool.map(family=>EMPIRICAL_FAMILY_LEVELS[family]).filter(Number.isFinite);
+    return Math.max(5,Math.min(60,Math.floor(Math.min(...values)/5)*5));
+  }
+  function progressivePool(session){return session.mode==='test-relation'?(RELATION_FAMILIES[session.relation]||RELATION_FAMILIES.spatial):Object.keys(EMPIRICAL_FAMILY_LEVELS)}
+  function prepareProgressiveBand(session){
+    const pool=progressivePool(session),band=session.band||progressiveInitialBand(pool),available=availableFamilies(pool,band),fallback=pool.slice().sort((a,b)=>Math.abs((EMPIRICAL_FAMILY_LEVELS[a]||30)-band)-Math.abs((EMPIRICAL_FAMILY_LEVELS[b]||30)-band));
+    const families=(available.length?available:fallback).slice();
+    const rng=random('progressive-band|'+session.seed+'|'+band+'|'+(session.bandCycle||0)+'|'+(session.relation||'all'));
+    session.bandFamilies=shuffle(rng,families);session.bandIndex=0;session.band=band;
+  }
+  function selectProgressivePuzzle(session){
+    if(!Array.isArray(session.bandFamilies)||session.bandIndex>=session.bandFamilies.length){
+      if(Array.isArray(session.bandFamilies)&&session.bandFamilies.length){session.band=Math.min(60,(session.band||5)+5);session.bandCycle=(session.bandCycle||0)+1}
+      prepareProgressiveBand(session);
+    }
+    const family=session.bandFamilies[session.bandIndex++]||'marker-grid',tier=Math.max(1,Math.min(6,Math.ceil((session.band||5)/10)));
+    let best=null;
+    for(let variant=0;variant<5;variant++){
+      try{
+        const candidate=makeBalancedPuzzle(session.seed+'|progressive|'+session.index+'|'+session.band+'|'+family+'|'+variant,tier,family,'mixed',TRANSFORM_TYPES),key=adaptivePuzzleKey(candidate);
+        if(session.puzzleKeys.includes(key))continue;
+        const profile=exerciseDifficultyProfile(candidate),difficulty=profile.score,entry={puzzle:candidate,key,tier,family,profile,difficulty,target:session.band,gap:Math.abs(difficulty-session.band)};
+        if(!best||entry.gap<best.gap)best=entry;
+      }catch{}
+    }
+    if(best)return best;
+    const candidate=makeBalancedPuzzle(session.seed+'|progressive-fallback|'+session.index,tier,family,'mixed',TRANSFORM_TYPES),profile=exerciseDifficultyProfile(candidate);
+    return{puzzle:candidate,key:adaptivePuzzleKey(candidate),tier,family,profile,difficulty:profile.score,target:session.band,gap:0};
+  }
+  const originalLoadAdaptiveExercise=loadAdaptiveExercise;
+  loadAdaptiveExercise=function(){
+    if(!isProgressiveSession(testSession))return originalLoadAdaptiveExercise();
+    const selectedCandidate=selectProgressivePuzzle(testSession);puzzle=selectedCandidate.puzzle;testSession.currentTier=selectedCandidate.tier;testSession.currentFamily=selectedCandidate.family;testSession.currentItemDifficulty=selectedCandidate.difficulty;testSession.currentTargetDifficulty=selectedCandidate.target;testSession.currentDifficultyProfile=selectedCandidate.profile;testSession.puzzleKeys.push(selectedCandidate.key);puzzle.difficulty=selectedCandidate.tier;puzzle.adaptiveDifficulty=selectedCandidate.difficulty;renderCurrentPuzzle();updateTimerStatus();
+  };
+  const originalStartAdaptiveTest=startAdaptiveTest;
+  startAdaptiveTest=function(fresh=false){
+    const mode=adaptiveModeValue();
+    if(!progressiveMode(mode))return originalStartAdaptiveTest(fresh);
+    if(fresh||!testSession||testSession.mode!==mode||testSession.seed!==$('seed').value.trim()){
+      if(fresh||!$('seed').value.trim())$('seed').value=newSeed();
+      const timerMinutes=Math.max(1,Math.min(240,Math.round(Number($('test-timer').value)||10))),startedAt=Date.now(),relation=$('test-relation')?.value||'spatial';
+      testSession={seed:$('seed').value.trim(),total:Number.MAX_SAFE_INTEGER,index:0,score:35,outcomes:[],puzzleKeys:[],timerMinutes,startedAt,deadline:startedAt+timerMinutes*60000,mode,relation,band:0,bandCycle:0,bandFamilies:null,bandIndex:0,showFinalNumericResultsAtStart:showFinalNumericResults()};
+    }
+    loadAdaptiveExercise();startTestTimer();
+  };
+  const originalRecordAdaptiveOutcome=recordAdaptiveOutcome;
+  recordAdaptiveOutcome=function(correct,durationMilliseconds){
+    if(!isProgressiveSession(testSession))return originalRecordAdaptiveOutcome(correct,durationMilliseconds);
+    const durationMs=Math.max(0,Number(durationMilliseconds)||0),profile=testSession.currentDifficultyProfile||exerciseDifficultyProfile(puzzle),outcome={exercise:testSession.index+1,correct,result:correct?'correct':'error',evaluationIncluded:true,durationMilliseconds:+durationMs.toFixed(1),durationSeconds:+(durationMs/1000).toFixed(3),tier:testSession.currentTier,family:testSession.currentFamily,itemScore:+Number(testSession.currentItemDifficulty||0).toFixed(1),targetDifficulty:testSession.currentTargetDifficulty,band:testSession.band,relation:testSession.relation,puzzleSeed:puzzle?.seed||null,answer:selected+1,correctAnswer:puzzle.answer+1,ruleCount:profile.ruleCount,visualLoad:profile.visualLoad,distractorSimilarity:profile.distractorSimilarity};
+    testSession.outcomes.push(outcome);appendAdaptiveObservation(outcome);
+  };
+  const originalAdvanceAdaptiveTest=advanceAdaptiveTest;
+  advanceAdaptiveTest=function(){if(!isProgressiveSession(testSession))return originalAdvanceAdaptiveTest();if(!testSession||testSession.completed)return;testSession.index++;loadAdaptiveExercise()};
+  const originalFinishAdaptiveTest=finishAdaptiveTest;
+  finishAdaptiveTest=function(expired){
+    if(!isProgressiveSession(testSession))return originalFinishAdaptiveTest(expired);
+    if(!testSession||testSession.completed)return;stopTestTimer();const c=copy(),outcomes=testSession.outcomes||[],correct=outcomes.filter(outcome=>outcome.correct).length,elapsed=elapsedTestTime(testSession.startedAt),relation=testSession.mode==='test-relation'?relationName(testSession.relation):null;
+    $('feedback').hidden=false;$('feedback').className='feedback';$('feedback').innerHTML='<h3>'+escapeHtml(c.results)+'</h3><div class="result-grid"><div class="result-card"><span class="result-label">'+escapeHtml(c.correct)+'</span><strong>'+correct+' / '+outcomes.length+'</strong></div><div class="result-card"><span class="result-label">'+escapeHtml(c.answered)+'</span><strong>'+outcomes.length+'</strong></div><div class="result-card result-range-card"><span class="result-label">'+escapeHtml(c.duration)+'</span><strong>'+escapeHtml(elapsed)+'</strong><div class="result-caption">'+escapeHtml(relation||c.survey)+'</div></div></div><p class="result-details"><strong>'+escapeHtml(c.ending)+':</strong> '+escapeHtml(expired?c.expired:c.complete)+'</p><p class="result-thanks">'+escapeHtml(c.thanks)+'</p>';
+    $('puzzle-meta').textContent=c.complete;$('next').hidden=true;$('check').disabled=true;$('hint').disabled=true;$('reveal').disabled=true;$('matrix').replaceChildren();$('answers').replaceChildren();selected=-1;finished=true;document.querySelector('.workspace-top h2').textContent=c.complete;testSession.completedReason=expired?'time':'manual';testSession.completed=true;updateTimerStatus();syncAdaptiveView();requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'instant'}));
+  };
+  const originalRenderCurrentPuzzleForProgressive=renderCurrentPuzzle;
+  renderCurrentPuzzle=function(){originalRenderCurrentPuzzleForProgressive();if(!isProgressiveSession(testSession))return;const c=copy(),familyPosition=Math.min(testSession.bandIndex,testSession.bandFamilies?.length||1),familyTotal=testSession.bandFamilies?.length||1;$('complexity-badge').textContent=c.band+' '+Math.max(1,(testSession.band||5)-4)+'–'+(testSession.band||5)+' · '+interpolate(c.familyProgress,{current:familyPosition,total:familyTotal});$('puzzle-meta').textContent=relationName(testSession.relation)+' · '+textFrom(FAMILY_TEXT,puzzle.family)};
+  const originalRefreshTestIntroLanguage=refreshTestIntroLanguage;
+  refreshTestIntroLanguage=function(){originalRefreshTestIntroLanguage();if(!progressiveMode())return;const c=copy(),relation=relationName($('test-relation')?.value||'spatial'),focused=adaptiveModeValue()==='test-relation';$('test-intro-title').textContent=focused?c.relationTitle:c.surveyTitle;document.querySelector('[data-intro-key="subtitle"]').textContent=focused?c.relationIntro.replace('{relation}',relation):c.surveyIntro;$('intro-start-test').textContent=focused?c.startRelation:c.startSurvey};
+  const originalUpdatePlayModeForProgressive=updatePlayMode;
+  updatePlayMode=function(){originalUpdatePlayModeForProgressive();refreshProgressiveCopy()};
+  const originalApplyLanguageForProgressive=applyLanguage;
+  applyLanguage=function(language){originalApplyLanguageForProgressive(language);refreshProgressiveCopy();if(typeof refreshTestIntroLanguage==='function')refreshTestIntroLanguage()};
+  installProgressiveControls();
+  $('test-relation')?.addEventListener('change',()=>{if(adaptiveModeValue()==='test-relation')refreshProgressiveCopy()});
+  $('play-mode')?.addEventListener('change',()=>setTimeout(refreshProgressiveCopy,0));
+  updatePlayMode();
+})();
 })();
 </script><script id="navigation-v12918">
 (()=>{
@@ -3256,10 +3396,10 @@ if(puzzle)renderCurrentPuzzle();
   const returnToIdleMenu=()=>{returnToMainMenu();setIdleExerciseVisibility()};
 
   const startButton=$('test-start');
-  if(startButton)startButton.onclick=()=>{leaveIdleMenu();showTestIntro()};
+  if(startButton)startButton.onclick=()=>{leaveIdleMenu();showTestIntro()}; // Canonical main flow: clear test-menu, then open the intro.
 
   const introStart=$('intro-start-test');
-  if(introStart)introStart.onclick=()=>{leaveIdleMenu();beginAdaptiveTestFromIntro()};
+  if(introStart)introStart.onclick=()=>{leaveIdleMenu();beginAdaptiveTestFromIntro()}; // Canonical main bridge: never replace this call with a duplicate start sequence.
 
   const introClose=$('test-intro-close');
   if(introClose)introClose.onclick=returnToIdleMenu;
