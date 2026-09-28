@@ -3089,10 +3089,10 @@ if(puzzle)renderCurrentPuzzle();
 </script><script id="navigation-v12918">
 (()=>{
   const setIdleExerciseVisibility=()=>{
-    const mode=$('play-mode')?.value||'practice';
     const intro=document.body.classList.contains('adaptive-intro');
-    const testing=Boolean(testSession&&mode==='test');
-    document.body.classList.toggle('test-menu',mode==='test'&&!testing&&!intro);
+    const adaptive=isAdaptiveMode();
+    const testing=Boolean(testSession&&adaptive);
+    document.body.classList.toggle('test-menu',adaptive&&!testing&&!intro);
   };
   const leaveIdleMenu=()=>document.body.classList.remove('test-menu');
   const returnToIdleMenu=()=>{returnToMainMenu();setIdleExerciseVisibility()};
