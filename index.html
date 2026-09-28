@@ -2702,21 +2702,118 @@ function adaptiveRangeComparison(session,actualAverage,count){
 }
 function adaptiveRangeResultCopy(){
  const copy={
-  en:{label:'Path position within test range',wrong:'All-wrong reference',correct:'All-correct reference',caption:'Describes where the post-calibration path sits within the simulated range available to this test, using the same calibration start and the same number of scored exercises. It is not a population percentile.',bands:['Near the lower boundary','Lower part of the range','Central part of the range','Upper part of the range','Near the upper boundary']},
-  it:{label:'Posizione del percorso nel range del test',wrong:'Riferimento: tutte errate',correct:'Riferimento: tutte corrette',caption:'Descrive dove si colloca il percorso dopo la calibrazione nel range simulato disponibile per questo test, usando lo stesso punto di partenza e lo stesso numero di esercizi valutati. Non è un percentile della popolazione.',bands:['Non valutabile','Verso il centro del range','Fascia centrale del range','Fascia superiore del range','Vicino al limite superiore']},
-  fr:{label:'Position du parcours dans la plage du test',wrong:'Référence : toutes fausses',correct:'Référence : toutes correctes',caption:'Décrit où se situe le parcours après calibration dans la plage simulée disponible pour ce test, avec le même point de départ et le même nombre d’exercices évalués. Ce n’est pas un percentile de population.',bands:['Près de la limite basse','Partie basse de la plage','Partie centrale de la plage','Partie haute de la plage','Près de la limite haute']},
-  de:{label:'Position des Testverlaufs im möglichen Bereich',wrong:'Referenz: alles falsch',correct:'Referenz: alles richtig',caption:'Beschreibt, wo der Verlauf nach der Kalibrierung innerhalb des für diesen Test simulierten Bereichs liegt, bei gleichem Ausgangspunkt und gleicher Zahl gewerteter Aufgaben. Kein Bevölkerungsperzentil.',bands:['Nahe der unteren Grenze','Unterer Bereich','Mittlerer Bereich','Oberer Bereich','Nahe der oberen Grenze']},
-  es:{label:'Posición del recorrido en el rango del test',wrong:'Referencia: todas incorrectas',correct:'Referencia: todas correctas',caption:'Describe dónde se sitúa el recorrido tras la calibración dentro del rango simulado disponible para este test, con el mismo punto de partida y el mismo número de ejercicios evaluados. No es un percentil poblacional.',bands:['Cerca del límite inferior','Parte inferior del rango','Parte central del rango','Parte superior del rango','Cerca del límite superior']},
-  pt:{label:'Posição do percurso no intervalo do teste',wrong:'Referência: todas erradas',correct:'Referência: todas corretas',caption:'Descreve onde o percurso após a calibração se situa no intervalo simulado disponível para este teste, com o mesmo ponto de partida e o mesmo número de exercícios avaliados. Não é um percentil populacional.',bands:['Perto do limite inferior','Parte inferior do intervalo','Parte central do intervalo','Parte superior do intervalo','Perto do limite superior']},
-  nl:{label:'Positie van het testpad binnen het bereik',wrong:'Referentie: alles fout',correct:'Referentie: alles goed',caption:'Beschrijft waar het pad na de kalibratie ligt binnen het gesimuleerde bereik van deze test, met hetzelfde startpunt en hetzelfde aantal beoordeelde oefeningen. Dit is geen populatiepercentiel.',bands:['Dicht bij de ondergrens','Onderste deel van het bereik','Midden van het bereik','Bovenste deel van het bereik','Dicht bij de bovengrens']},
-  pl:{label:'Pozycja ścieżki w zakresie testu',wrong:'Odniesienie: wszystko błędnie',correct:'Odniesienie: wszystko poprawnie',caption:'Opisuje położenie ścieżki po kalibracji w symulowanym zakresie dostępnym dla tego testu, przy tym samym punkcie startowym i tej samej liczbie ocenionych zadań. To nie jest percentyl populacji.',bands:['Blisko dolnej granicy','Dolna część zakresu','Środkowa część zakresu','Górna część zakresu','Blisko górnej granicy']}
+  en:{
+   label:'Path position within test range',
+   wrong:'All-wrong reference',
+   correct:'All-correct reference',
+   caption:'Describes where the post-calibration path sits within the simulated range available to this test, using the same calibration start and the same number of scored exercises. It is not a population percentile.',
+   messages:[
+    ['You may just need a little more practice, but this is a good start!','A bit more familiarity with these puzzles may help, but this is a perfectly good starting point.','This looks like an early step — a little practice could change the path quite a lot.','There is plenty of room to get more comfortable with the format, and this is a useful first run.','A little more practice may help the test explore further next time.'],
+    ['You are starting to get the hang of it — a little more practice could open up more of the test.','There is already a useful base here, with room for the path to develop further.','The test is beginning to explore more of its range; another run could be interesting.','You are getting into the rhythm of the exercises, with room to push the path further.'],
+    ['Good path: the test had room to explore several levels.','A solid run: the test was able to move through a meaningful part of its range.','The path developed well and gave the test room to explore different difficulty levels.'],
+    ['Nice path: the test was able to push into fairly high difficulty levels.','A strong path: the test explored a clearly advanced part of its available range.'],
+    ['Excellent path: the test came very close to the maximum available for this session.']
+   ]
+  },
+  it:{
+   label:'Posizione del percorso nel range del test',
+   wrong:'Riferimento: tutte errate',
+   correct:'Riferimento: tutte corrette',
+   caption:'Descrive dove si colloca il percorso dopo la calibrazione nel range simulato disponibile per questo test, usando lo stesso punto di partenza e lo stesso numero di esercizi valutati. Non è un percentile della popolazione.',
+   messages:[
+    ['Forse ti serve un po’ più di allenamento, ma è un buon inizio!','Potrebbe servire un po’ più di pratica, ma come punto di partenza va bene!','È solo l’inizio: con un po’ di allenamento il percorso potrebbe cambiare parecchio.','Un po’ più di familiarità con questi esercizi può aiutare, ma è un buon primo giro.','C’è ancora molto spazio per prendere confidenza con il test: questo è un buon punto da cui partire.'],
+    ['Stai iniziando a prendere confidenza: con un po’ di pratica il test potrebbe spingersi più avanti.','C’è già una buona base, con ancora spazio perché il percorso si sviluppi.','Il test sta iniziando a esplorare una parte più ampia del suo range.','Hai preso il ritmo degli esercizi: qualche altra prova potrebbe far emergere un percorso più ampio.'],
+    ['Buon percorso: il test ha avuto modo di esplorare diversi livelli.','Un percorso solido: il test è riuscito a muoversi attraverso una parte significativa del suo range.','Il percorso si è sviluppato bene e ha dato al test spazio per esplorare difficoltà diverse.'],
+    ['Bel percorso: il test è riuscito a spingersi su livelli piuttosto alti.','Percorso molto buono: il test ha esplorato una parte chiaramente avanzata del range disponibile.'],
+    ['Ottimo percorso: il test è arrivato molto vicino al massimo disponibile per questa sessione.']
+   ]
+  },
+  fr:{
+   label:'Position du parcours dans la plage du test',
+   wrong:'Référence : toutes fausses',
+   correct:'Référence : toutes correctes',
+   caption:'Décrit où se situe le parcours après calibration dans la plage simulée disponible pour ce test, avec le même point de départ et le même nombre d’exercices évalués. Ce n’est pas un percentile de population.',
+   messages:[
+    ['Il faut peut-être encore un peu d’entraînement, mais c’est un bon début !','Un peu plus de pratique pourrait aider, mais c’est un bon point de départ.','Ce n’est que le début : un peu d’entraînement peut beaucoup changer le parcours.'],
+    ['Le rythme commence à venir ; un peu de pratique pourrait permettre au test d’aller plus loin.','Il y a déjà une bonne base, avec encore de la marge pour développer le parcours.','Le test commence à explorer une partie plus large de sa plage.'],
+    ['Bon parcours : le test a pu explorer plusieurs niveaux.','Un parcours solide : le test a pu parcourir une partie significative de sa plage.'],
+    ['Beau parcours : le test a pu atteindre des niveaux assez élevés.','Très bon parcours : le test a exploré une partie clairement avancée de sa plage disponible.'],
+    ['Excellent parcours : le test est arrivé très près du maximum disponible pour cette session.']
+   ]
+  },
+  de:{
+   label:'Position des Testverlaufs im möglichen Bereich',
+   wrong:'Referenz: alles falsch',
+   correct:'Referenz: alles richtig',
+   caption:'Beschreibt, wo der Verlauf nach der Kalibrierung innerhalb des für diesen Test simulierten Bereichs liegt, bei gleichem Ausgangspunkt und gleicher Zahl gewerteter Aufgaben. Kein Bevölkerungsperzentil.',
+   messages:[
+    ['Vielleicht braucht es noch etwas Übung, aber das ist ein guter Anfang!','Etwas mehr Übung könnte helfen, aber als Ausgangspunkt ist das völlig in Ordnung.','Das ist erst der Anfang: Mit etwas Übung kann sich der Verlauf deutlich verändern.'],
+    ['Du bekommst langsam ein Gefühl dafür; mit etwas Übung könnte der Test weiter kommen.','Eine gute Basis ist schon da, und der Verlauf kann sich noch weiter entwickeln.','Der Test beginnt, einen größeren Teil seines Bereichs zu erkunden.'],
+    ['Guter Verlauf: Der Test konnte mehrere Schwierigkeitsstufen erkunden.','Ein solider Verlauf: Der Test hat einen bedeutenden Teil seines Bereichs abgedeckt.'],
+    ['Schöner Verlauf: Der Test konnte in ziemlich hohe Schwierigkeitsstufen vordringen.','Sehr guter Verlauf: Der Test hat einen klar fortgeschrittenen Teil seines verfügbaren Bereichs erkundet.'],
+    ['Ausgezeichneter Verlauf: Der Test kam dem für diese Sitzung verfügbaren Maximum sehr nahe.']
+   ]
+  },
+  es:{
+   label:'Posición del recorrido en el rango del test',
+   wrong:'Referencia: todas incorrectas',
+   correct:'Referencia: todas correctas',
+   caption:'Describe dónde se sitúa el recorrido tras la calibración dentro del rango simulado disponible para este test, con el mismo punto de partida y el mismo número de ejercicios evaluados. No es un percentil poblacional.',
+   messages:[
+    ['Quizá haga falta un poco más de práctica, ¡pero es un buen comienzo!','Un poco más de práctica podría ayudar, pero es un buen punto de partida.','Esto es solo el comienzo: con algo de práctica el recorrido puede cambiar bastante.'],
+    ['Ya estás empezando a coger el ritmo; con algo de práctica el test podría llegar más lejos.','Ya hay una buena base, con margen para que el recorrido siga desarrollándose.','El test empieza a explorar una parte más amplia de su rango.'],
+    ['Buen recorrido: el test ha podido explorar varios niveles.','Un recorrido sólido: el test ha podido moverse por una parte significativa de su rango.'],
+    ['Buen recorrido: el test ha conseguido llegar a niveles bastante altos.','Muy buen recorrido: el test ha explorado una parte claramente avanzada del rango disponible.'],
+    ['Excelente recorrido: el test ha llegado muy cerca del máximo disponible para esta sesión.']
+   ]
+  },
+  pt:{
+   label:'Posição do percurso no intervalo do teste',
+   wrong:'Referência: todas erradas',
+   correct:'Referência: todas corretas',
+   caption:'Descreve onde o percurso após a calibração se situa no intervalo simulado disponível para este teste, com o mesmo ponto de partida e o mesmo número de exercícios avaliados. Não é um percentil populacional.',
+   messages:[
+    ['Talvez seja preciso um pouco mais de treino, mas é um bom começo!','Um pouco mais de prática pode ajudar, mas é um bom ponto de partida.','Isto é só o começo: com alguma prática o percurso pode mudar bastante.'],
+    ['Já está a ganhar ritmo; com um pouco de prática o teste pode ir mais longe.','Já existe uma boa base, com espaço para o percurso continuar a desenvolver-se.','O teste começa a explorar uma parte mais ampla do seu intervalo.'],
+    ['Bom percurso: o teste conseguiu explorar vários níveis.','Um percurso sólido: o teste percorreu uma parte significativa do seu intervalo.'],
+    ['Belo percurso: o teste conseguiu chegar a níveis bastante altos.','Muito bom percurso: o teste explorou uma parte claramente avançada do intervalo disponível.'],
+    ['Excelente percurso: o teste chegou muito perto do máximo disponível para esta sessão.']
+   ]
+  },
+  nl:{
+   label:'Positie van het testpad binnen het bereik',
+   wrong:'Referentie: alles fout',
+   correct:'Referentie: alles goed',
+   caption:'Beschrijft waar het pad na de kalibratie ligt binnen het gesimuleerde bereik van deze test, met hetzelfde startpunt en hetzelfde aantal beoordeelde oefeningen. Dit is geen populatiepercentiel.',
+   messages:[
+    ['Misschien is wat extra oefening nodig, maar dit is een goed begin!','Wat meer oefening kan helpen, maar dit is een prima startpunt.','Dit is pas het begin: met wat oefening kan het pad behoorlijk veranderen.'],
+    ['Je begint er gevoel voor te krijgen; met wat oefening kan de test verder komen.','Er is al een goede basis, met nog ruimte voor het pad om zich verder te ontwikkelen.','De test begint een groter deel van zijn bereik te verkennen.'],
+    ['Goed pad: de test kon verschillende niveaus verkennen.','Een degelijk pad: de test kon door een betekenisvol deel van zijn bereik bewegen.'],
+    ['Mooi pad: de test kon behoorlijk hoge moeilijkheidsniveaus bereiken.','Zeer goed pad: de test verkende een duidelijk gevorderd deel van het beschikbare bereik.'],
+    ['Uitstekend pad: de test kwam heel dicht bij het maximum dat voor deze sessie beschikbaar was.']
+   ]
+  },
+  pl:{
+   label:'Pozycja ścieżki w zakresie testu',
+   wrong:'Odniesienie: wszystko błędnie',
+   correct:'Odniesienie: wszystko poprawnie',
+   caption:'Opisuje położenie ścieżki po kalibracji w symulowanym zakresie dostępnym dla tego testu, przy tym samym punkcie startowym i tej samej liczbie ocenionych zadań. To nie jest percentyl populacji.',
+   messages:[
+    ['Być może potrzeba jeszcze trochę treningu, ale to dobry początek!','Trochę więcej praktyki może pomóc, ale to dobry punkt wyjścia.','To dopiero początek: odrobina treningu może mocno zmienić przebieg.'],
+    ['Zaczynasz łapać rytm; trochę praktyki może pozwolić testowi pójść dalej.','Jest już dobra baza i nadal sporo miejsca na rozwinięcie ścieżki.','Test zaczyna eksplorować większą część swojego zakresu.'],
+    ['Dobry przebieg: test miał możliwość sprawdzić kilka poziomów.','Solidny przebieg: test przeszedł przez znaczącą część swojego zakresu.'],
+    ['Bardzo dobry przebieg: test dotarł do dość wysokich poziomów trudności.','Bardzo dobry przebieg: test zbadał wyraźnie zaawansowaną część dostępnego zakresu.'],
+    ['Świetny przebieg: test dotarł bardzo blisko maksimum dostępnego dla tej sesji.']
+   ]
+  }
  };
  return copy[activeLanguage]||copy.en
 }
-function adaptiveRangeQualitativeLabel(position,copy=adaptiveRangeResultCopy()){
- const value=Math.max(0,Math.min(100,Number(position)||0)),bands=copy.bands||[];
- const index=value<20?0:value<40?1:value<60?2:value<80?3:4;
- return bands[index]||'—'
+function adaptiveRangeQualitativeMessage(position,session,copy=adaptiveRangeResultCopy()){
+ const value=Math.max(0,Math.min(100,Number(position)||0)),index=value<20?0:value<40?1:value<60?2:value<80?3:4,pool=copy.messages?.[index]||[];
+ if(!pool.length)return'—';
+ const rng=random('adaptive-range-message|'+(session?.seed||'')+'|'+index);
+ return pool[Math.floor(rng()*pool.length)]||pool[0]
 }
 function adaptiveCalibrationCount(session){return Math.min(3,adaptiveValidOutcomes(session).length)}
 function gentleTrailingErrors(outcomes){let count=0;for(let index=outcomes.length-1;index>=0&&!outcomes[index].correct;index--)count++;return count}
@@ -3113,7 +3210,7 @@ resultContextSentence=function(stabilityKey,coveragePercent){const c=loc().resul
 finishAdaptiveTest=function(expired){
  if(!testSession||testSession.completed)return;
  stopTestTimer();
- const validOutcomes=adaptiveValidOutcomes(testSession),scoredOutcomes=validOutcomes.slice(3),ignoredOutcomes=(testSession.outcomes||[]).filter(o=>o.evaluationIncluded===false),itemScores=scoredOutcomes.map(o=>Number(o.itemScore)).filter(Number.isFinite),correctItemScores=scoredOutcomes.filter(o=>o.correct).map(o=>Number(o.itemScore)).filter(Number.isFinite),mean=a=>a.length?a.reduce((sum,value)=>sum+value,0)/a.length:null,average=mean(itemScores),maximumCorrect=correctItemScores.length?Math.max(...correctItemScores):null,range=difficultyScaleRange(),averageDifficulty=average===null?'—':relativeDifficulty(average,range),maximumCorrectDifficulty=maximumCorrect===null?'—':relativeDifficulty(maximumCorrect,range),stability=resultStability(scoredOutcomes),stabilityLabel=resultStabilityLabel(stability.labelKey),coverage=resultTypeCoverage(scoredOutcomes),postCorrect=scoredOutcomes.filter(o=>o.correct).length,elapsed=elapsedTestTime(testSession.startedAt),hideNumeric=!(testSession.showFinalNumericResultsAtStart??showFinalNumericResults()),averageValue=average===null?'—':hideNumeric?averageDifficulty:average.toFixed(1)+'/60 · '+averageDifficulty,maximumValue=maximumCorrect===null?'—':hideNumeric?maximumCorrectDifficulty:maximumCorrect.toFixed(1)+'/60 · '+maximumCorrectDifficulty,coverageValue=coverage.percent===null?'—':coverage.percent+'%',rangeComparison=adaptiveRangeComparison(testSession,average,scoredOutcomes.length),rangeCopy=adaptiveRangeResultCopy(),rangePosition=rangeComparison?Math.round(rangeComparison.position):null,rangeValue=rangePosition===null?'—':hideNumeric?adaptiveRangeQualitativeLabel(rangeComparison.position,rangeCopy):rangePosition+'%',wrongEndpoint=rangeComparison?rangeCopy.wrong+' · '+rangeComparison.allWrongAverage.toFixed(1)+'/60':rangeCopy.wrong,correctEndpoint=rangeComparison?rangeCopy.correct+' · '+rangeComparison.allCorrectAverage.toFixed(1)+'/60':rangeCopy.correct,rangeVisualization=rangeComparison&&!hideNumeric?'<div class="result-range-track" aria-hidden="true"><span class="result-range-marker" style="left:'+rangeComparison.position.toFixed(2)+'%"></span></div><div class="result-range-scale"><span>'+wrongEndpoint+'</span><span>'+correctEndpoint+'</span></div>':'',rangeCard='<div class="result-card result-range-card"><span class="result-label">'+rangeCopy.label+'</span><strong>'+rangeValue+'</strong>'+rangeVisualization+'<div class="result-caption">'+rangeCopy.caption+'</div></div>',r=loc().result,completionText=expired?r.expired:r.maximumReached,ignoredText=ignoredOutcomes.length?fmt(r.ignored,{n:ignoredOutcomes.length}):'',numericNote=hideNumeric?r.numericHidden:'',methodNote=fmt(r.method,{ms:MIN_VALID_RESPONSE_MS})+numericNote,insight=resultContextSentence(stability.labelKey,coverage.percent);
+ const validOutcomes=adaptiveValidOutcomes(testSession),scoredOutcomes=validOutcomes.slice(3),ignoredOutcomes=(testSession.outcomes||[]).filter(o=>o.evaluationIncluded===false),itemScores=scoredOutcomes.map(o=>Number(o.itemScore)).filter(Number.isFinite),correctItemScores=scoredOutcomes.filter(o=>o.correct).map(o=>Number(o.itemScore)).filter(Number.isFinite),mean=a=>a.length?a.reduce((sum,value)=>sum+value,0)/a.length:null,average=mean(itemScores),maximumCorrect=correctItemScores.length?Math.max(...correctItemScores):null,range=difficultyScaleRange(),averageDifficulty=average===null?'—':relativeDifficulty(average,range),maximumCorrectDifficulty=maximumCorrect===null?'—':relativeDifficulty(maximumCorrect,range),stability=resultStability(scoredOutcomes),stabilityLabel=resultStabilityLabel(stability.labelKey),coverage=resultTypeCoverage(scoredOutcomes),postCorrect=scoredOutcomes.filter(o=>o.correct).length,elapsed=elapsedTestTime(testSession.startedAt),hideNumeric=!(testSession.showFinalNumericResultsAtStart??showFinalNumericResults()),averageValue=average===null?'—':hideNumeric?averageDifficulty:average.toFixed(1)+'/60 · '+averageDifficulty,maximumValue=maximumCorrect===null?'—':hideNumeric?maximumCorrectDifficulty:maximumCorrect.toFixed(1)+'/60 · '+maximumCorrectDifficulty,coverageValue=coverage.percent===null?'—':coverage.percent+'%',rangeComparison=adaptiveRangeComparison(testSession,average,scoredOutcomes.length),rangeCopy=adaptiveRangeResultCopy(),rangePosition=rangeComparison?Math.round(rangeComparison.position):null,rangeValue=rangePosition===null?'—':hideNumeric?adaptiveRangeQualitativeMessage(rangeComparison.position,testSession,rangeCopy):rangePosition+'%',wrongEndpoint=rangeComparison?rangeCopy.wrong+' · '+rangeComparison.allWrongAverage.toFixed(1)+'/60':rangeCopy.wrong,correctEndpoint=rangeComparison?rangeCopy.correct+' · '+rangeComparison.allCorrectAverage.toFixed(1)+'/60':rangeCopy.correct,rangeVisualization=rangeComparison&&!hideNumeric?'<div class="result-range-track" aria-hidden="true"><span class="result-range-marker" style="left:'+rangeComparison.position.toFixed(2)+'%"></span></div><div class="result-range-scale"><span>'+wrongEndpoint+'</span><span>'+correctEndpoint+'</span></div>':'',rangeCard='<div class="result-card result-range-card"><span class="result-label">'+rangeCopy.label+'</span><strong>'+rangeValue+'</strong>'+rangeVisualization+'<div class="result-caption">'+rangeCopy.caption+'</div></div>',r=loc().result,completionText=expired?r.expired:r.maximumReached,ignoredText=ignoredOutcomes.length?fmt(r.ignored,{n:ignoredOutcomes.length}):'',numericNote=hideNumeric?r.numericHidden:'',methodNote=fmt(r.method,{ms:MIN_VALID_RESPONSE_MS})+numericNote,insight=resultContextSentence(stability.labelKey,coverage.percent);
  const labels=r;
  $('feedback').hidden=false;$('feedback').className='feedback';
  $('feedback').innerHTML='<h3>'+labels.title+'</h3><div class="result-grid"><div class="result-card"><span class="result-label">'+labels.average+'</span><strong>'+averageValue+'</strong><div class="result-caption">'+labels.averageCaption+'</div></div><div class="result-card"><span class="result-label">'+labels.maximum+'</span><strong>'+maximumValue+'</strong><div class="result-caption">'+labels.maximumCaption+'</div></div><div class="result-card"><span class="result-label">'+labels.stability+'</span><strong>'+stabilityLabel+'</strong><div class="result-caption">'+labels.stabilityCaption+'</div></div><div class="result-card"><span class="result-label">'+labels.coverage+'</span><strong>'+coverageValue+'</strong><div class="result-caption">'+labels.coverageCaption+'</div></div>'+rangeCard+'</div><p class="result-insight">'+insight+'</p><p class="result-details"><strong>'+labels.correct+':</strong> '+postCorrect+' / '+scoredOutcomes.length+' · <strong>'+labels.evaluated+':</strong> '+scoredOutcomes.length+' · <strong>'+labels.duration+':</strong> '+elapsed+'</p><p class="result-details"><strong>'+labels.ending+':</strong> '+completionText+(ignoredText?' · '+ignoredText:'')+'</p><p class="result-method">'+methodNote+'</p><p class="result-thanks">'+labels.thanks+'</p>';
