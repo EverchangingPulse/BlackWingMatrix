@@ -589,7 +589,11 @@ function answerVisualKey(figure){
  if(figure.kind==='mini-grid')return JSON.stringify(['mini-grid',figure.n||3,ordered(figure.cells||[]),figure.fill||'solid']);
  if(figure.kind==='carrier-token')return JSON.stringify(['carrier-token',shapeVisualKey(figure.carrier,1),figure.token,figure.outerFill||'white',figure.tokenFill||'solid',shapeVisualRotation(figure.carrier,1,figure.rotation),figure.scale||.62]);
  if(figure.kind==='dots')return JSON.stringify(['dots',sortJSON((figure.points||[]).map(point=>[Number(point[0].toFixed(3)),Number(point[1].toFixed(3))])),figure.dotType||'dot',figure.fill||'solid']);
- if(figure.kind==='line')return JSON.stringify(['line',sortJSON((figure.segments||[]).map(segment=>{const a=segment.slice(0,2),b=segment.slice(2,4);return JSON.stringify(a)<=JSON.stringify(b)?[a,b]:[b,a]})),sortJSON((figure.marks||[]).map(mark=>[mark.type,mark.point,mark.fill||'solid']))]);
+ if(figure.kind==='line'){
+  // Compare the drawing, not floating-point noise: symmetric spoke rotations can render identically.
+  const coordinate=value=>Number(Number(value).toFixed(4)),canonicalPoint=point=>(point||[]).map(coordinate),canonicalSegment=segment=>{const a=canonicalPoint(segment.slice(0,2)),b=canonicalPoint(segment.slice(2,4));return JSON.stringify(a)<=JSON.stringify(b)?[a,b]:[b,a]},unique=values=>[...new Map(values.map(value=>[JSON.stringify(value),value])).values()];
+  return JSON.stringify(['line',sortJSON(unique((figure.segments||[]).map(canonicalSegment))),sortJSON(unique((figure.marks||[]).map(mark=>[mark.type,canonicalPoint(mark.point),mark.fill||'solid'])))]);
+ }
  if(figure.kind==='shape-fill')return JSON.stringify(['shape-fill',shapeVisualKey(figure.shape,1),figure.fill||'white',shapeVisualRotation(figure.shape,1,figure.rotation),figure.scale||.62]);
  if(figure.kind==='composition')return JSON.stringify(['composition',sortJSON((figure.parts||[]).map(part=>part.kind==='shape'?{...part,shape:shapeVisualKey(part.shape,1),rotation:shapeVisualRotation(part.shape,1,part.rotation)}:part))]);
  if(figure.kind==='split-fill')return JSON.stringify(['split-fill',figure.direction||0,figure.fill||'solid']);
