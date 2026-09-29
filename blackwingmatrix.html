@@ -724,6 +724,18 @@ function balanceVisibleGiveaways(puzzle){
 }
 function dotBalanceSideCounts(values={}){return{left:dotBalanceSideDots(values,'left').length,right:dotBalanceSideDots(values,'right').length}}
 function dotBalanceTileFits(tile){const sides=dotBalanceSideCounts(tile?.values);return sides.left<=3&&sides.right<=3}
+function dotBalanceResultTile(left,middle){const a=left?.values||{},b=middle?.values||{};return{reference:true,kind:'balance-dots',values:{filled:(Number(a.filled)||0)+(Number(b.filled)||0),hollow:(Number(a.hollow)||0)+(Number(b.hollow)||0)}}}
+function normalizeDotBalanceSolution(puzzle){
+ if(!(puzzle?.family==='dot-balance'&&Array.isArray(puzzle.cells)&&puzzle.cells.length===9&&Array.isArray(puzzle.options)))return puzzle;
+ const expected=dotBalanceResultTile(puzzle.cells[6],puzzle.cells[7]);
+ if(!dotBalanceTileFits(expected))throw new Error('Dot-balance inputs exceed the visible capacity of their result.');
+ puzzle.cells[8]=expected;
+ const key=answerVisualKey(expected);let answer=puzzle.options.findIndex(tile=>answerVisualKey(tile)===key);
+ if(answer<0){const r=random('dot-balance-answer-repair|'+puzzle.seed),candidates=[];for(const filled of [-3,-2,-1,0,1,2,3])for(const hollow of [-3,-2,-1,0,1,2,3]){const tile={reference:true,kind:'balance-dots',values:{filled,hollow}};if(dotBalanceTileFits(tile)&&answerVisualKey(tile)!==key)candidates.push(tile)}puzzle.options=shuffle(r,[clone(expected),...shuffle(r,candidates).slice(0,7)]);answer=puzzle.options.findIndex(tile=>answerVisualKey(tile)===key);
+ }
+ puzzle.answer=answer;
+ return puzzle;
+}
 function dotBalanceIsValid(puzzle){
  if(!(puzzle?.family==='dot-balance'&&Array.isArray(puzzle.cells)&&puzzle.cells.length===9&&Array.isArray(puzzle.options)))return false;
  for(let row=0;row<3;row++){
@@ -732,7 +744,7 @@ function dotBalanceIsValid(puzzle){
   if(![left,middle,result].every(dotBalanceTileFits))return false;
   if(c.filled!==(a.filled||0)+(b.filled||0)||c.hollow!==(a.hollow||0)+(b.hollow||0))return false;
  }
- const solutionKey=answerVisualKey(puzzle.cells[8]);
+ const solutionKey=answerVisualKey(dotBalanceResultTile(puzzle.cells[6],puzzle.cells[7]));
  return Number.isInteger(puzzle.answer)&&answerVisualKey(puzzle.options[puzzle.answer])===solutionKey;
 }
 function rebuildNearMissOptions(puzzle){
@@ -797,6 +809,7 @@ function makeBalancedPuzzle(seed,level,family,requestedOperation='mixed',transfo
   last=repairAnswerOptions(last);
   last=balanceVisibleGiveaways(last);
   last=rebuildNearMissOptions(last);
+  if(family==='dot-balance')normalizeDotBalanceSolution(last);
   ensureDistinctAnswerOptions(last);
   try{assertPuzzleOptionIntegrity(last)}catch{continue}
   if(family==='dot-balance'&&!dotBalanceIsValid(last))continue;
@@ -2649,6 +2662,7 @@ function elapsedTestTime(startedAt){const seconds=Math.max(0,Math.round((Date.no
 function newSeed(){const a=new Uint32Array(2);if(globalThis.crypto?.getRandomValues)crypto.getRandomValues(a);else{a[0]=Date.now();a[1]=Math.random()*4294967295}return Array.from(a,x=>x.toString(36)).join('-')}
 function selectedTransforms(){return[...document.querySelectorAll('[data-transform]')].filter(input=>input.checked).map(input=>input.dataset.transform)}
 function renderCurrentPuzzle(){
+ if(puzzle?.family==='dot-balance')normalizeDotBalanceSolution(puzzle);
  if(puzzle&&Array.isArray(puzzle.options))ensureDistinctAnswerOptions(puzzle);
  const inTest=Boolean(testSession),tier=puzzle.difficulty||puzzle.level||Number($('difficulty').value);setAssistButtonsVisible(!inTest);selected=-1;finished=false;aided=false;started=Date.now();$('matrix').innerHTML=puzzle.cells.map((f,i)=>'<div class="cell'+(i===8?' missing':'')+'" aria-label="'+(activeLanguage==='it'?'Riga ':'Row ')+(Math.floor(i/3)+1)+', '+(activeLanguage==='it'?'colonna ':'column ')+(i%3+1)+(i===8?', '+(activeLanguage==='it'?'mancante':'missing'):'')+'">'+(i===8?'?':renderFigure(f))+'</div>').join('');$('answers').innerHTML=puzzle.options.map((f,i)=>'<button class="answer" data-index="'+i+'" aria-label="'+(activeLanguage==='it'?'Risposta ':'Answer ')+(i+1)+'" aria-pressed="false">'+renderFigure(f)+'<span class="letter">'+(i+1)+'</span></button>').join('');$('feedback').hidden=true;$('feedback').className='feedback';$('check').disabled=true;updateCheckButtonLabel();$('hint').disabled=inTest;$('reveal').disabled=inTest;$('next').hidden=true;$('complexity-badge').textContent=inTest?adaptiveItemDisplay(testSession,puzzle):(puzzle.badge||difficultyName(tier));document.querySelector('.workspace-top h2').textContent=inTest?t('exercise',{current:testSession.index+1,total:testSession.total}):t('question');$('puzzle-meta').textContent=inTest?adaptiveMetaDisplay(testSession):'Seed '+puzzle.seed+' · '+(puzzle.meta||$('family').selectedOptions[0].textContent)}
 function setAssistButtonsVisible(visible){for(const id of ['hint','reveal']){const node=$(id);if(!node)continue;node.style.opacity=visible?'':'0';node.style.pointerEvents=visible?'':'none';node.setAttribute('aria-hidden',String(!visible))}}
