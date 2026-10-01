@@ -1,0 +1,155 @@
+name: Patch advanced Kronecker generator
+
+on:
+  push:
+    branches:
+      - feature/generalized-raven-families-2-5
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/generalized-raven-families-2-5
+          fetch-depth: 0
+
+      - name: Patch generators and calibration
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          advanced = r'''function randomConnectedGridCells(r,n,minCount,maxCount){
+           const target=minCount+Math.floor(r()*(maxCount-minCount+1)),start=Math.floor(r()*(n*n)),active=new Set([start]);
+           for(let attempt=0;active.size<target&&attempt<300;attempt++){const base=pick(r,[...active]),[x,y]=ravenGridPoint(n,base),neighbors=[[x+1,y],[x-1,y],[x,y+1],[x,y-1]].filter(([nx,ny])=>nx>=0&&nx<n&&ny>=0&&ny<n);if(neighbors.length){const[nx,ny]=pick(r,neighbors);active.add(ravenGridSlot(n,nx,ny))}}
+           return ordered([...active])
+          }
+          function kroneckerCells(nA,aCells,nB,bCells){
+           const out=[],n=nA*nB;for(const aSlot of aCells){const[ax,ay]=ravenGridPoint(nA,aSlot);for(const bSlot of bCells){const[bx,by]=ravenGridPoint(nB,bSlot);out.push(ravenGridSlot(n,ax*nB+bx,ay*nB+by))}}return ordered([...new Set(out)])
+          }
+          function kroneckerTransformCells(n,cells,kind){
+           return ordered([...new Set((cells||[]).map(slot=>{const[x,y]=ravenGridPoint(n,slot);let nx=x,ny=y;if(kind==='vertical')nx=n-1-x;else if(kind==='horizontal')ny=n-1-y;else if(kind==='diag'){nx=y;ny=x}else if(kind==='anti'){nx=n-1-y;ny=n-1-x}else if(kind==='r90'){nx=n-1-y;ny=x}else if(kind==='r180'){nx=n-1-x;ny=n-1-y}return ravenGridSlot(n,nx,ny)}))])
+          }
+          function kroneckerSymmetrySignature(n,cells){
+           const key=JSON.stringify(ordered(cells||[]));return['vertical','horizontal','diag','anti','r90','r180'].map(kind=>JSON.stringify(kroneckerTransformCells(n,cells,kind))===key)
+          }
+          function kroneckerAdjacencyCounts(n,cells){
+           const set=new Set(cells||[]);let horizontal=0,vertical=0;for(const slot of set){const[x,y]=ravenGridPoint(n,slot);if(x+1<n&&set.has(slot+1))horizontal++;if(y+1<n&&set.has(slot+n))vertical++}return{horizontal,vertical}
+          }
+          function kroneckerSeamCounts(n,cells){
+           const set=new Set(cells||[]);let horizontal=0,vertical=0;for(let row=0;row<n;row++)if(set.has(row*n)&&set.has(row*n+n-1))horizontal++;for(let col=0;col<n;col++)if(set.has(col)&&set.has((n-1)*n+col))vertical++;return{horizontal,vertical}
+          }
+          function kroneckerPairMetrics(nA,a,nB,b){
+           const adjacency=kroneckerAdjacencyCounts(nA,a),seams=kroneckerSeamCounts(nB,b),seamScore=adjacency.horizontal*seams.horizontal+adjacency.vertical*seams.vertical,signatureA=kroneckerSymmetrySignature(nA,a),signatureB=kroneckerSymmetrySignature(nB,b),symmetryDistance=signatureA.reduce((sum,value,index)=>sum+(value!==signatureB[index]?1:0),0),sharedSymmetries=signatureA.reduce((sum,value,index)=>sum+(value&&signatureB[index]?1:0),0),densityA=a.length/(nA*nA),densityB=b.length/(nB*nB),densityPenalty=(Math.abs(densityA-.56)+Math.abs(densityB-.56))*10,score=seamScore*8+sharedSymmetries*5-symmetryDistance*1.5-densityPenalty+(nA===3&&nB===3?4:0);return{seamScore,sharedSymmetries,symmetryDistance,densityA,densityB,score,adjacency,seams}
+          }
+          function kroneckerPairSize(r,level){
+           if(level<=2)return[2,2];if(level===3)return pick(r,[[2,2],[2,3],[3,2]]);if(level===4)return pick(r,[[2,3],[3,2],[3,3]]);if(level===5)return pick(r,[[2,3],[3,2],[3,3],[3,3]]);return[3,3]
+          }
+          function kroneckerGeneratePair(r,level,nA,nB){
+           if(level<=3){for(let attempt=0;attempt<300;attempt++){const a=randomConnectedGridCells(r,nA,1,Math.max(1,nA*nA-1)),b=randomConnectedGridCells(r,nB,1,Math.max(1,nB*nB-1)),result=kroneckerCells(nA,a,nB,b);if(a.length&&b.length&&result.length>=2&&result.length<nA*nA*nB*nB)return{a,b,result,metrics:kroneckerPairMetrics(nA,a,nB,b)}}throw new Error('Unable to generate a readable Kronecker row.')}
+           const totalA=nA*nA,totalB=nB*nB,minA=Math.max(2,Math.floor(totalA*(level>=5?.44:.34))),maxA=Math.min(totalA-1,Math.max(minA,Math.ceil(totalA*.72))),minB=Math.max(2,Math.floor(totalB*(level>=5?.44:.34))),maxB=Math.min(totalB-1,Math.max(minB,Math.ceil(totalB*.72))),attempts=level>=6?1800:1000;let best=null;
+           for(let attempt=0;attempt<attempts;attempt++){
+            const a=randomConnectedGridCells(r,nA,minA,maxA),b=randomConnectedGridCells(r,nB,minB,maxB);if(nA===nB&&JSON.stringify(a)===JSON.stringify(b))continue;const result=kroneckerCells(nA,a,nB,b);if(result.length<4||result.length>=totalA*totalB)continue;const metrics=kroneckerPairMetrics(nA,a,nB,b),required=level===4?metrics.seamScore>=1:level===5?metrics.seamScore>=2&&(metrics.sharedSymmetries>=1||metrics.symmetryDistance<=1):metrics.seamScore>=2&&metrics.sharedSymmetries>=1&&metrics.densityA>=.4&&metrics.densityA<=.75&&metrics.densityB>=.4&&metrics.densityB<=.75,rank=metrics.score+(required?100:0);if(!best||rank>best.rank)best={a,b,result,metrics,rank,required};if(required&&metrics.seamScore>=4&&metrics.sharedSymmetries>=1)break
+           }
+           if(!best)throw new Error('Unable to generate an advanced Kronecker row.');return best
+          }
+          function kroneckerBlockCells(nA,aSlot,nB,bCells){
+           const[ax,ay]=ravenGridPoint(nA,aSlot),n=nA*nB;return ordered((bCells||[]).map(bSlot=>{const[bx,by]=ravenGridPoint(nB,bSlot);return ravenGridSlot(n,ax*nB+bx,ay*nB+by)}))
+          }
+          function kroneckerReplaceBlock(nA,aSlot,nB,result,oldB,newB){
+           const oldSet=new Set(kroneckerBlockCells(nA,aSlot,nB,oldB)),kept=(result||[]).filter(slot=>!oldSet.has(slot));return ordered([...new Set([...kept,...kroneckerBlockCells(nA,aSlot,nB,newB)])])
+          }
+          function makeKroneckerProductPuzzle(seed,level=4,family='kronecker-product'){
+           const r=random('kronecker-product-v3|'+seed+'|'+level),[nA,nB]=kroneckerPairSize(r,level),n=nA*nB,rows=[];
+           for(let row=0;row<3;row++)rows.push(kroneckerGeneratePair(r,level,nA,nB));
+           const cells=[];for(const row of rows)cells.push(ravenMiniGrid(nA,row.a),ravenMiniGrid(nB,row.b),ravenMiniGrid(n,row.result));
+           const target=rows[2],solution=cells[8],variants=[],push=value=>{if(value&&value.length)variants.push(ordered([...new Set(value)]))};
+           push(kroneckerCells(nB,target.b,nA,target.a));push(ravenRotateCells(n,target.result,1));push(ravenRotateCells(n,target.result,2));push(ravenMirrorCells(n,target.result));
+           const rotatedB=ravenRotateCells(nB,target.b,1),mirroredB=ravenMirrorCells(nB,target.b);push(kroneckerCells(nA,target.a,nB,rotatedB));push(kroneckerCells(nA,target.a,nB,mirroredB));
+           for(const anchor of shuffle(r,target.a).slice(0,4)){const block=new Set(kroneckerBlockCells(nA,anchor,nB,target.b));push(target.result.filter(slot=>!block.has(slot)));push(kroneckerReplaceBlock(nA,anchor,nB,target.result,target.b,rotatedB));push(kroneckerReplaceBlock(nA,anchor,nB,target.result,target.b,mirroredB))}
+           const emptyAnchors=shuffle(r,Array.from({length:nA*nA},(_,index)=>index).filter(slot=>!target.a.includes(slot)));for(const anchor of emptyAnchors.slice(0,4))push([...target.result,...kroneckerBlockCells(nA,anchor,nB,target.b)]);
+           if(target.a.length&&emptyAnchors.length){for(const oldAnchor of shuffle(r,target.a).slice(0,2))for(const newAnchor of emptyAnchors.slice(0,2)){const oldBlock=new Set(kroneckerBlockCells(nA,oldAnchor,nB,target.b));push([...target.result.filter(slot=>!oldBlock.has(slot)),...kroneckerBlockCells(nA,newAnchor,nB,target.b)])}}
+           for(const slot of shuffle(r,target.result).slice(0,6))if(target.result.length>2)push(target.result.filter(value=>value!==slot));const empties=Array.from({length:n*n},(_,index)=>index).filter(slot=>!target.result.includes(slot));for(const slot of shuffle(r,empties).slice(0,6))push([...target.result,slot]);
+           const allB=Array.from({length:nB*nB},(_,index)=>index),allA=Array.from({length:nA*nA},(_,index)=>index);push(kroneckerCells(nA,target.a,nB,allB));push(kroneckerCells(nA,allA,nB,target.b));
+           const solutionKey=JSON.stringify(solution.cells),unique=[...new Map(variants.map(value=>[JSON.stringify(value),value])).values()].filter(value=>JSON.stringify(value)!==solutionKey),mutations=unique.map(value=>tile=>{tile.n=n;tile.cells=[...value]}),advanced=level>=4,metrics=target.metrics;
+           return referencePuzzle('kronecker-product',seed,level,family,cells,solution,mutations,advanced?'Dense hierarchy · merged Kronecker blocks':'Hierarchical geometry · Kronecker product',advanced?'black-and-white binary matrices · similar symmetry + cross-block seams':'black-and-white binary matrices',['Treat black cells as 1 and white cells as 0.','Each black cell of the left matrix is replaced by a complete copy of the middle matrix; each white cell becomes an empty block.',advanced?'At higher difficulty the operands are deliberately chosen so adjacent copies join across block boundaries and their symmetries are similar, making the block decomposition less obvious.':'The low-level variants keep the copied blocks comparatively easy to separate.'],[advanced?'Do not follow the outer silhouette first. Reconstruct the hidden block grid, then test which repeated local pattern could have produced the merged result.':'Read the left matrix as a block layout, then stamp the entire middle pattern into every black block.'],{generator:{leftSize:nA,middleSize:nB,resultSize:n,complexityMode:advanced?'merged-seams':'standard',seamScore:metrics.seamScore,sharedSymmetries:metrics.sharedSymmetries,symmetryDistance:metrics.symmetryDistance,densityA:+metrics.densityA.toFixed(3),densityB:+metrics.densityB.toFixed(3)}})
+          }
+          '''
+
+          def edit_tier_array(text, const_name, tier, add=(), remove=()):
+              pattern = rf"(const {re.escape(const_name)}=\{{.*?{tier}:\[)([^\]]*)(\])"
+              match = re.search(pattern, text, flags=re.S)
+              if not match:
+                  raise RuntimeError(f"Could not find {const_name} tier {tier}")
+              values = re.findall(r"'([^']+)'", match.group(2))
+              values = [value for value in values if value not in set(remove)]
+              for value in add:
+                  if value not in values:
+                      values.append(value)
+              body = ','.join(f"'{value}'" for value in values)
+              return text[:match.start(2)] + body + text[match.end(2):]
+
+          block_pattern = re.compile(r"function randomConnectedGridCells\(r,n,minCount,maxCount\)\{.*?\n\}\nfunction cartesianAxisTile", re.S)
+
+          for filename in ['index.html','blackwingmatrix.html']:
+              path = Path(filename)
+              text = path.read_text(encoding='utf-8')
+              match = block_pattern.search(text)
+              if not match:
+                  raise RuntimeError(f"Kronecker generator block not found in {filename}")
+              text = text[:match.start()] + advanced + "\nfunction cartesianAxisTile" + text[match.end():]
+
+              old_pad = "x=x0+col*step,y=y0+row*step,pad=4;"
+              new_pad = "x=x0+col*step,y=y0+row*step,pad=n>=7?Math.max(.8,step*.12):4;"
+              if text.count(old_pad) != 1:
+                  raise RuntimeError(f"Expected one mini-grid pad anchor in {filename}, found {text.count(old_pad)}")
+              text = text.replace(old_pad, new_pad, 1)
+
+              if "'kronecker-product':44" not in text:
+                  raise RuntimeError(f"Kronecker prior anchor not found in {filename}")
+              text = text.replace("'kronecker-product':44", "'kronecker-product':30", 1)
+              text = edit_tier_array(text, 'ADAPTIVE_FAMILY_POOLS', 3, add=('kronecker-product',))
+              text = edit_tier_array(text, 'ADAPTIVE_FAMILY_POOLS', 4, add=('kronecker-product',))
+              text = edit_tier_array(text, 'ADAPTIVE_FAMILY_POOLS', 6, remove=('kronecker-product',))
+
+              if '<meta name="software-version" content="1.31.0">' in text:
+                  text = text.replace('<meta name="software-version" content="1.31.0">','<meta name="software-version" content="1.31.1">',1)
+              elif '<meta name="software-version" content="1.31.1">' not in text:
+                  raise RuntimeError(f"Version anchor not found in {filename}")
+
+              path.write_text(text, encoding='utf-8')
+
+          if Path('index.html').read_bytes() != Path('blackwingmatrix.html').read_bytes():
+              raise RuntimeError('index.html and blackwingmatrix.html diverged')
+          PY
+
+      - name: Syntax-check inline JavaScript
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const html=fs.readFileSync('index.html','utf8');
+          const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]);
+          if(!scripts.length)throw new Error('No script blocks found');
+          scripts.forEach((script,index)=>{try{new Function(script)}catch(error){throw new Error(`Script ${index}: ${error.message}`)}});
+          if(!html.includes("function kroneckerPairMetrics"))throw new Error('Advanced Kronecker helpers missing');
+          if(!html.includes("complexityMode:advanced?'merged-seams':'standard'"))throw new Error('Advanced Kronecker metadata missing');
+          if(!html.includes("'kronecker-product':30"))throw new Error('Kronecker difficulty prior not recalibrated');
+          console.log(`Compiled ${scripts.length} script blocks successfully.`);
+          NODE
+
+      - name: Commit patch and remove temporary workflow
+        shell: bash
+        run: |
+          rm .github/workflows/patch-advanced-kronecker.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html blackwingmatrix.html .github/workflows/patch-advanced-kronecker.yml
+          git commit -m "Add harder Kronecker generator variants"
+          git push origin HEAD:feature/generalized-raven-families-2-5
