@@ -2253,6 +2253,12 @@ function kroneckerCellWitness(derivation,targetSlot){
  const[x,y]=ravenGridPoint(derivation.n,targetSlot),outerX=Math.floor(x/derivation.nB),outerY=Math.floor(y/derivation.nB),innerX=x%derivation.nB,innerY=y%derivation.nB;
  return{layoutSlot:ravenGridSlot(derivation.nA,outerX,outerY),motifSlot:ravenGridSlot(derivation.nB,innerX,innerY)}
 }
+function kroneckerExplanationLines(puzzle){
+ return instanceExplanationLinesV1296(puzzle);
+}
+function kroneckerAnswerFalsification(puzzle,index){
+ return naturalSelectedFalsification(puzzle,index);
+}
 function pointKey(point){return Number(point?.[0])+','+Number(point?.[1])}
 function pointFromKey(key){const[x,y]=String(key).split(',').map(Number);return[x,y]}
 function reasonLatticePoint(point){const[x,y]=point||[];return reasonText('colonna '+(Number(x)+1)+', riga '+(Number(y)+1),'column '+(Number(x)+1)+', row '+(Number(y)+1))}
