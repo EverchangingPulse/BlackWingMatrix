@@ -15,7 +15,7 @@
 
 **BlackWingMatrix** is a standalone web application for practicing abstract and visuospatial reasoning with procedurally generated 3×3 logic matrices.
 
-Current version: **1.29.18**.
+Current version: **1.31.1**.
 
 ## Try it online
 
@@ -33,11 +33,25 @@ Each exercise shows a 3×3 matrix with the bottom-right tile missing. You choose
 - mini-grid and set/Boolean operations
 - multi-rule problems where several independent properties must be tracked at once
 
-## Adaptive test
+## Session modes
 
-The adaptive test begins with three calibration exercises. After calibration, a correct answer tends to move the next exercise toward a higher internal difficulty, while an incorrect answer tends to move it lower. The system also varies exercise families so the result is not dominated by one pattern type.
+The session selector provides five modes:
 
-Four options are independent and disabled by default: show correct/incorrect feedback, show the explanation, show numeric difficulty values during the test, and show numeric values in the final summary.
+- **Single puzzle** — generate one reproducible exercise. Choose its family and qualitative difficulty band; relevant families also expose transformations or Boolean operations.
+- **Adaptive test** — a standard adaptive session that starts with three calibration exercises and then selects items around the estimated level.
+- **Gradual adaptive test** — the default mode. It uses the same calibration but approaches the estimated frontier more smoothly, rather than jumping immediately to very difficult items.
+- **Progressive panoramic test** — raises difficulty progressively while rotating across suitable families, for a broad non-adaptive sample.
+- **Logical-relation test** — practises a selected relation group, such as spatial transformations, Boolean logic, row/column/diagonal relations, outer/inner relations, or reused relations.
+
+## Adaptive testing and difficulty
+
+All generators use one shared internal **0–60 difficulty scale**. It is used in single-puzzle generation, calibration and every test mode; the six visible labels are only qualitative bands of that same scale.
+
+Each adaptive session starts with three generated calibration exercises. Their requested difficulties are selected on a 0.01 grid: the middle item is between 23 and 27, the first is between 10 and 16, and the third completes a total calibration difficulty between 74 and 76. Calibration families are selected from generators that can actually produce the requested difficulty, rather than from a fixed family list.
+
+After calibration, the next target uses the previous performance, response time, error streaks, the strongest correctly solved difficulty and how close a wrong alternative is to the correct solution for that exercise family. The gradual mode additionally dampens the early climb and stops persistent escalation when high-level answers show no reliable success.
+
+Four display options are independent and disabled by default: show correct/incorrect feedback, show the explanation, show numeric difficulty values during the test, and show numeric values in the final summary.
 
 ## Feedback and explanations
 
@@ -47,9 +61,11 @@ When enabled, BlackWingMatrix explains the intended visual rule and, after a wro
 
 The generator includes grid movements, outer-shape/inner-symbol relations, dot arrangements, line compositions, mini-grid logic, polyomino rotations, shapes and fills, diagonal fills, symbol order, radial patterns, block and dot balancing, segment overlays and other mixed transformations.
 
-## Difficulty and results
+## Difficulty, results and analysis
 
-Difficulty is an internal relative scale used to compare generated exercises and choose the next item in the adaptive test. The final summary can show qualitative labels only, or numeric values if the corresponding option is enabled. The maximum-correct difficulty refers to the hardest evaluated exercise answered correctly.
+The final summary can show qualitative labels only, or numeric values when the corresponding option is enabled. It reports the hardest evaluated exercise answered correctly, the coverage of exercise families, stability of the path and the reason the session ended. It also compares the post-calibration path against simulated all-correct and all-wrong reference paths with the same start; this comparison is not a population percentile or an IQ score.
+
+The **Gaussian** tab keeps a local exercise history. It can export results as CSV, import a CSV history, recalculate the stored difficulty values and simulate 200 reference profiles. Adaptive sessions can also export their complete results as JSON and CSV.
 
 ## Single-puzzle mode
 
@@ -70,10 +86,10 @@ BlackWingMatrix is an experimental practice and relative-assessment tool. It is 
 ## Quick start
 
 1. Open the online version or the standalone HTML file.
-2. Choose **Adaptive test** or **Single puzzle**.
-3. For the adaptive test, set the time limit and maximum number of exercises if needed.
+2. Choose a session mode. **Gradual adaptive test** is selected by default.
+3. Set the time limit and maximum number of exercises, or choose a family and band for a single puzzle.
 4. Start the session and choose one of the eight answers for each matrix.
-5. At the end, review the summary. Feedback and explanations appear only if you enabled them.
+5. At the end, review the summary or export the results. Feedback and explanations appear only if you enabled them.
 
 ## License and attribution
 

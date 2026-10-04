@@ -15,7 +15,7 @@
 
 **BlackWingMatrix** is een zelfstandige webapp voor het oefenen van abstract en visuospatieel redeneren met procedureel gegenereerde 3×3-logische matrices.
 
-Huidige versie: **1.29.18**.
+Huidige versie: **1.31.1**.
 
 ## Online proberen
 
@@ -33,9 +33,23 @@ Elke oefening toont een 3×3-matrix waarvan het vak rechtsonder ontbreekt. Je ki
 - mini-rasterbewerkingen en verzamelingen-/Booleaanse logica
 - opgaven waarin meerdere onafhankelijke regels tegelijk gevolgd moeten worden
 
-## Adaptieve test
+## Sessiemodi
 
-De adaptieve test begint met drie kalibratieoefeningen. Daarna verschuift een correct antwoord de volgende oefening doorgaans naar een hogere interne moeilijkheid, terwijl een fout antwoord die doorgaans verlaagt. Ook worden verschillende oefenfamilies afgewisseld zodat het resultaat niet door één patroontype wordt bepaald.
+De sessiekeuze biedt vijf modi:
+
+- **Enkele oefening** — maakt één reproduceerbare oefening; kies familie en kwalitatieve band en, waar relevant, transformaties of Booleaanse bewerkingen.
+- **Adaptieve test** — standaard adaptieve sessie na drie kalibratieoefeningen.
+- **Geleidelijke adaptieve test** — standaardmodus; benadert de geschatte grens gelijkmatiger.
+- **Progressieve panoramische test** — verhoogt de moeilijkheid stapsgewijs en wisselt passende families af, zonder aanpassing aan antwoorden.
+- **Test op logische relatie** — oefent een geselecteerde groep: ruimtelijke transformaties, Booleaanse logica, rij-, kolom-, diagonaal-, buiten/binnen- of hergebruikte relaties.
+
+## Adaptieve test en moeilijkheid
+
+Alle generators gebruiken één interne **0–60-schaal** voor enkele oefeningen, kalibratie en alle testmodi; de zes zichtbare labels zijn alleen kwalitatieve banden van die schaal.
+
+Elke adaptieve sessie begint met drie gegenereerde kalibratieoefeningen. De gevraagde moeilijkheden worden op een raster van 0,01 gekozen: het middelste item ligt tussen 23 en 27, het eerste tussen 10 en 16 en het derde vult een kalibratietotaal tussen 74 en 76 aan. Families worden gekozen uit generators die de gevraagde moeilijkheid daadwerkelijk kunnen produceren.
+
+Na de kalibratie houdt het volgende niveau rekening met eerdere prestaties, reactietijd, foutreeksen, de hoogste correct opgeloste moeilijkheid en de nabijheid van een fout alternatief tot de oplossing binnen die familie. De geleidelijke modus dempt de vroege stijging en voorkomt aanhoudende escalatie zonder betrouwbare hoge successen.
 
 Vier opties zijn onafhankelijk en standaard uitgeschakeld: correct/fout tonen, uitleg tonen, numerieke waarden tijdens de test tonen en numerieke waarden in het eindoverzicht tonen.
 
@@ -47,9 +61,11 @@ Wanneer ingeschakeld legt BlackWingMatrix de bedoelde visuele regel uit. Na een 
 
 De generator bevat onder meer rasterbewegingen, relaties tussen buitenvorm en binnensymbool, puntpatronen, lijncomposities, mini-rasterlogica, polyomino-rotaties, vormen en vullingen, diagonale vullingen, symboolvolgorde, radiale patronen, blok- en puntbalans, segmentoverlays en andere gemengde transformaties.
 
-## Moeilijkheid en resultaten
+## Moeilijkheid, resultaten en analyse
 
-Moeilijkheid is een interne relatieve schaal om gegenereerde oefeningen te vergelijken en het volgende item in de adaptieve test te kiezen. Het eindoverzicht kan alleen kwalitatieve categorieën tonen of ook numerieke waarden. De maximale moeilijkheid met een correct antwoord is de moeilijkste beoordeelde oefening die correct is beantwoord.
+Het eindoverzicht geeft de moeilijkste correct opgeloste beoordeelde oefening, de dekking van families, de stabiliteit van het traject en de reden voor beëindiging. Het vergelijkt het traject na kalibratie ook met gesimuleerde alles-goed- en alles-fout-referenties met hetzelfde startpunt; dit is geen populatiepercentiel en geen IQ-score.
+
+Het tabblad **Gaussisch** bewaart de lokale geschiedenis, kan CSV exporteren en importeren, opgeslagen moeilijkheden herberekenen en 200 referentieprofielen simuleren. Adaptieve sessies zijn ook als JSON en CSV te exporteren.
 
 ## Modus enkele oefening
 
@@ -70,10 +86,10 @@ BlackWingMatrix is een experimenteel oefen- en relatief beoordelingsinstrument. 
 ## Snel beginnen
 
 1. Open de online versie of het zelfstandige HTML-bestand.
-2. Kies **Adaptieve test** of **Enkele oefening**.
-3. Stel indien nodig de tijdslimiet en het maximale aantal oefeningen in.
+2. Kies een sessiemodus. **Geleidelijke adaptieve test** is standaard geselecteerd.
+3. Stel de tijdslimiet en het maximale aantal oefeningen in, of kies familie en band voor één oefening.
 4. Start de sessie en kies voor elke matrix één van de acht antwoorden.
-5. Bekijk aan het einde het overzicht. Feedback en uitleg verschijnen alleen wanneer je ze hebt ingeschakeld.
+5. Bekijk aan het einde het overzicht of exporteer de resultaten. Feedback en uitleg verschijnen alleen wanneer je ze hebt ingeschakeld.
 
 ## Licentie en naamsvermelding
 
