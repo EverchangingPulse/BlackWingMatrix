@@ -15,7 +15,7 @@
 
 **BlackWingMatrix** ist eine eigenständige Webanwendung zum Training abstrakten und visuell-räumlichen Denkens mit prozedural erzeugten 3×3-Logikmatrizen.
 
-Aktuelle Version: **1.29.18**.
+Aktuelle Version: **1.31.1**.
 
 ## Online ausprobieren
 
@@ -33,9 +33,23 @@ Jede Aufgabe zeigt eine 3×3-Matrix, bei der das Feld unten rechts fehlt. Aus ac
 - Mini-Gitter sowie Mengen-/Boolesche Operationen
 - Aufgaben mit mehreren gleichzeitig zu verfolgenden unabhängigen Regeln
 
-## Adaptiver Test
+## Sitzungsmodi
 
-Der adaptive Test beginnt mit drei Kalibrierungsaufgaben. Danach verschiebt eine richtige Antwort die nächste Aufgabe tendenziell zu einer höheren internen Schwierigkeit, eine falsche Antwort zu einer niedrigeren. Zusätzlich werden die Aufgabenfamilien variiert, damit das Ergebnis nicht von nur einem Mustertyp abhängt.
+Der Sitzungswähler bietet fünf Modi:
+
+- **Einzelaufgabe** — erzeugt eine reproduzierbare Aufgabe mit wählbarer Familie und qualitativer Stufe; je nach Familie auch mit Transformationen oder Booleschen Operationen.
+- **Adaptiver Test** — Standardsitzung nach drei Kalibrierungsaufgaben.
+- **Adaptiver Test mit schrittweisem Fortschritt** — Standardmodus; er nähert sich der geschätzten Grenze sanfter.
+- **Progressiver Übersichtstest** — erhöht die Schwierigkeit schrittweise und wechselt passende Familien, ohne sich an Antworten anzupassen.
+- **Test nach logischer Beziehung** — übt eine gewählte Gruppe: räumliche Transformationen, Boolesche Logik, Zeilen-, Spalten-, Diagonal-, Außen-/Innen- oder wiederverwendete Beziehungen.
+
+## Adaptiver Test und Schwierigkeit
+
+Alle Generatoren teilen eine interne **0–60-Skala**. Sie wird in Einzelaufgaben, Kalibrierung und allen Testmodi verwendet; die sechs sichtbaren Bezeichnungen sind nur qualitative Bänder dieser Skala.
+
+Jede adaptive Sitzung beginnt mit drei erzeugten Kalibrierungsaufgaben. Die angeforderten Schwierigkeiten werden auf einem 0,01-Raster gewählt: das mittlere Element liegt bei 23–27, das erste bei 10–16 und das dritte ergänzt eine Kalibrierungssumme von 74–76. Familien werden nur aus Generatoren gewählt, die die angeforderte Schwierigkeit tatsächlich erzeugen können.
+
+Nach der Kalibrierung berücksichtigen die nächsten Aufgaben frühere Leistung, Antwortzeit, Fehlerfolgen, die höchste korrekt gelöste Schwierigkeit und die Nähe einer falschen Option zur Lösung in dieser Familie. Der schrittweise Modus dämpft den frühen Anstieg und vermeidet dauerhafte Eskalation ohne zuverlässige Erfolge auf hohem Niveau.
 
 Vier Optionen sind unabhängig voneinander und standardmäßig deaktiviert: richtig/falsch anzeigen, Erklärung anzeigen, numerische Schwierigkeitswerte während des Tests anzeigen und numerische Werte in der Endauswertung anzeigen.
 
@@ -47,9 +61,11 @@ Wenn aktiviert, beschreibt BlackWingMatrix die vorgesehene visuelle Regel. Nach 
 
 Enthalten sind unter anderem Gitterbewegungen, Beziehungen zwischen Außenform und Innensymbol, Punktanordnungen, Linienkompositionen, Mini-Gitter-Logik, Polyomino-Drehungen, Formen und Füllungen, diagonale Füllungen, Symbolreihenfolgen, radiale Muster, Block- und Punktausgleich, Segmentüberlagerungen und gemischte Transformationen.
 
-## Schwierigkeit und Ergebnisse
+## Schwierigkeit, Ergebnisse und Analyse
 
-Die Schwierigkeit ist eine interne relative Skala, mit der erzeugte Aufgaben verglichen und die nächste Aufgabe im adaptiven Test ausgewählt wird. Die Endauswertung kann nur qualitative Kategorien oder zusätzlich numerische Werte anzeigen. Die maximale Schwierigkeit mit richtiger Antwort bezeichnet die schwierigste gewertete Aufgabe, die korrekt beantwortet wurde.
+Die Endauswertung enthält die schwierigste korrekt gelöste gewertete Aufgabe, die Abdeckung der Familien, die Stabilität des Verlaufs und den Grund für das Sitzungsende. Außerdem vergleicht sie den Verlauf nach der Kalibrierung mit simulierten Alles-richtig- und Alles-falsch-Referenzpfaden mit demselben Start. Dies ist weder ein Bevölkerungsperzentil noch ein IQ-Wert.
+
+Der Tab **Gauß** speichert den lokalen Verlauf, kann CSV exportieren und importieren, gespeicherte Schwierigkeitswerte neu berechnen und 200 Referenzprofile simulieren. Adaptive Sitzungen lassen sich zusätzlich als JSON und CSV exportieren.
 
 ## Einzelaufgabenmodus
 
@@ -70,10 +86,10 @@ BlackWingMatrix ist ein experimentelles Übungs- und relatives Bewertungswerkzeu
 ## Schnellstart
 
 1. Online-Version oder eigenständige HTML-Datei öffnen.
-2. **Adaptiver Test** oder **Einzelaufgabe** wählen.
-3. Bei Bedarf Zeitlimit und maximale Aufgabenanzahl einstellen.
+2. Einen Sitzungsmodus wählen. **Adaptiver Test mit schrittweisem Fortschritt** ist standardmäßig ausgewählt.
+3. Zeitlimit und maximale Aufgabenanzahl einstellen oder Familie und Stufe für eine Einzelaufgabe wählen.
 4. Sitzung starten und für jede Matrix eine von acht Antworten auswählen.
-5. Am Ende die Zusammenfassung ansehen. Feedback und Erklärungen erscheinen nur, wenn sie aktiviert wurden.
+5. Am Ende die Zusammenfassung ansehen oder Ergebnisse exportieren. Feedback und Erklärungen erscheinen nur, wenn sie aktiviert wurden.
 
 ## Lizenz und Namensnennung
 

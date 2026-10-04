@@ -15,7 +15,7 @@
 
 **BlackWingMatrix** est une application web autonome destinée à l'entraînement au raisonnement abstrait et visuospatial à l'aide de matrices logiques 3×3 générées procéduralement.
 
-Version actuelle : **1.29.18**.
+Version actuelle : **1.31.1**.
 
 ## Essayer en ligne
 
@@ -33,9 +33,23 @@ Chaque exercice présente une matrice 3×3 dont la case inférieure droite est m
 - opérations sur mini-grilles et logique ensembliste/booléenne
 - problèmes combinant plusieurs règles indépendantes
 
-## Test adaptatif
+## Modes de session
 
-Le test commence par trois exercices d'étalonnage. Ensuite, une bonne réponse tend à augmenter la difficulté interne de l'exercice suivant, tandis qu'une mauvaise réponse tend à la diminuer. Les familles d'exercices varient également afin d'éviter qu'un seul type de motif domine le résultat.
+Le sélecteur propose cinq modes :
+
+- **Exercice unique** — génère un exercice reproductible, avec le choix de la famille, de la plage qualitative et, selon le cas, des transformations ou opérations booléennes.
+- **Test adaptatif** — session adaptative standard après trois exercices d'étalonnage.
+- **Test adaptatif à progression graduelle** — mode par défaut ; il atteint plus doucement la frontière estimée.
+- **Test panoramique progressif** — augmente progressivement la difficulté en alternant les familles adaptées, sans adaptation au résultat.
+- **Test par relation logique** — entraîne un groupe choisi : transformations spatiales, logique booléenne, relations de lignes, colonnes, diagonales, extérieur/intérieur ou relations réutilisées.
+
+## Test adaptatif et difficulté
+
+Tous les générateurs partagent une échelle interne de difficulté **0–60**, utilisée en exercice unique, en étalonnage et dans tous les tests ; les six étiquettes visibles ne sont que des catégories qualitatives de cette échelle.
+
+Chaque session adaptative commence avec trois exercices générés. Les difficultés demandées sont tirées sur une grille de 0,01 : l'élément central vaut 23–27, le premier 10–16, et le troisième complète un total d'étalonnage de 74–76. Les familles sont choisies parmi les générateurs capables de produire réellement le niveau demandé.
+
+Après l'étalonnage, le niveau demandé tient compte des résultats précédents, du temps de réponse, des séries d'erreurs, de la difficulté la plus élevée réussie et de la proximité de la réponse erronée avec la solution dans cette famille. Le mode graduel amortit la montée initiale et évite une escalade persistante sans réussite fiable aux hauts niveaux.
 
 Quatre options sont indépendantes et désactivées par défaut : afficher correct/incorrect, afficher l'explication, afficher les valeurs numériques pendant le test et afficher les valeurs numériques dans le résumé final.
 
@@ -47,9 +61,11 @@ Lorsqu'elles sont activées, les explications décrivent la règle visuelle atte
 
 Le générateur comprend notamment des déplacements sur grille, relations forme extérieure/symbole intérieur, dispositions de points, compositions de lignes, logique sur mini-grilles, rotations de polyominos, formes et remplissages, remplissages diagonaux, ordre des symboles, motifs radiaux, équilibrage de blocs et de points, superpositions de segments et transformations mixtes.
 
-## Difficulté et résultats
+## Difficulté, résultats et analyse
 
-La difficulté est une échelle interne relative servant à comparer les exercices générés et à choisir le suivant dans le test adaptatif. Le résumé final peut n'afficher que des catégories qualitatives ou inclure les valeurs numériques si l'option correspondante est activée. La difficulté maximale avec réponse correcte correspond à l'exercice évalué le plus difficile auquel vous avez répondu correctement.
+Le résumé final indique l'exercice évalué le plus difficile réussi, la couverture des familles, la stabilité du parcours et la raison de fin de session. Il compare aussi le parcours après étalonnage à des références simulées tout-correct et tout-faux avec le même départ ; ce n'est ni un percentile de population ni un score de QI.
+
+L'onglet **Gaussien** conserve l'historique local, permet l'export et l'import CSV, le recalcul des difficultés et la simulation de 200 profils de référence. Les sessions adaptatives s'exportent également en JSON et CSV.
 
 ## Mode exercice unique
 
@@ -70,10 +86,10 @@ BlackWingMatrix est un outil expérimental d'entraînement et d'évaluation rela
 ## Démarrage rapide
 
 1. Ouvrez la version en ligne ou le fichier HTML autonome.
-2. Choisissez **Test adaptatif** ou **Exercice unique**.
-3. Si nécessaire, réglez la durée et le nombre maximal d'exercices.
+2. Choisissez un mode de session. **Test adaptatif à progression graduelle** est sélectionné par défaut.
+3. Réglez la durée et le nombre maximal d'exercices, ou choisissez une famille et une plage pour un exercice unique.
 4. Lancez la session et choisissez une réponse parmi huit pour chaque matrice.
-5. À la fin, consultez le résumé. Le retour et les explications ne s'affichent que si vous les avez activés.
+5. À la fin, consultez le résumé ou exportez les résultats. Le retour et les explications ne s'affichent que si vous les avez activés.
 
 ## Licence et attribution
 

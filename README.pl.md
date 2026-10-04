@@ -15,7 +15,7 @@
 
 **BlackWingMatrix** to samodzielna aplikacja internetowa do ćwiczenia rozumowania abstrakcyjnego i wzrokowo-przestrzennego za pomocą proceduralnie generowanych macierzy logicznych 3×3.
 
-Aktualna wersja: **1.29.17**.
+Aktualna wersja: **1.31.1**.
 
 ## Wypróbuj online
 
@@ -33,9 +33,23 @@ Każde zadanie pokazuje macierz 3×3 z brakującym polem w prawym dolnym rogu. N
 - operacje na mini-siatkach oraz logika zbiorów/Boolowska
 - zadania z wieloma niezależnymi regułami śledzonymi jednocześnie
 
-## Test adaptacyjny
+## Tryby sesji
 
-Test adaptacyjny zaczyna się od trzech zadań kalibracyjnych. Później poprawna odpowiedź zwykle przesuwa kolejne zadanie w stronę większej trudności wewnętrznej, a błędna — mniejszej. System zmienia też rodziny zadań, aby wynik nie zależał nadmiernie od jednego typu wzoru.
+Selektor sesji oferuje pięć trybów:
+
+- **Pojedyncze zadanie** — generuje odtwarzalne zadanie; można wybrać rodzinę i zakres jakościowy, a w odpowiednich rodzinach także przekształcenia lub operacje Boolowskie.
+- **Test adaptacyjny** — standardowa sesja adaptacyjna po trzech zadaniach kalibracyjnych.
+- **Stopniowy test adaptacyjny** — tryb domyślny; łagodniej zbliża się do oszacowanej granicy.
+- **Progresywny test panoramiczny** — stopniowo podnosi trudność i zmienia odpowiednie rodziny, bez dostosowywania przebiegu do odpowiedzi.
+- **Test według relacji logicznej** — ćwiczy wybraną grupę: przekształcenia przestrzenne, logikę Boolowską, relacje wierszy, kolumn, przekątnych, zewnętrzne/wewnętrzne lub ponownie używane.
+
+## Test adaptacyjny i trudność
+
+Wszystkie generatory korzystają ze wspólnej wewnętrznej skali **0–60** w pojedynczych zadaniach, kalibracji i wszystkich trybach testu; sześć widocznych etykiet to wyłącznie jakościowe zakresy tej skali.
+
+Każda sesja adaptacyjna zaczyna się od trzech wygenerowanych zadań kalibracyjnych. Żądane trudności są wybierane na siatce 0,01: środkowy element ma 23–27, pierwszy 10–16, a trzeci uzupełnia sumę kalibracji 74–76. Rodziny są wybierane wyłącznie z generatorów, które potrafią rzeczywiście utworzyć żądaną trudność.
+
+Po kalibracji następny poziom uwzględnia wcześniejsze wyniki, czas odpowiedzi, serie błędów, najwyższą poprawnie rozwiązaną trudność oraz bliskość błędnej opcji do rozwiązania w danej rodzinie. Tryb stopniowy tłumi początkowy wzrost i zapobiega trwałej eskalacji bez wiarygodnych sukcesów na wysokim poziomie.
 
 Cztery opcje są niezależne i domyślnie wyłączone: pokaż poprawnie/błędnie, pokaż wyjaśnienie, pokaż wartości liczbowe podczas testu oraz pokaż wartości liczbowe w podsumowaniu końcowym.
 
@@ -47,9 +61,11 @@ Po włączeniu BlackWingMatrix wyjaśnia zamierzoną regułę wizualną. Po bł�
 
 Generator obejmuje m.in. przesunięcia na siatce, relacje między kształtem zewnętrznym i symbolem wewnętrznym, układy punktów, kompozycje linii, logikę mini-siatek, obroty poliomin, kształty i wypełnienia, wypełnienia diagonalne, kolejność symboli, wzory radialne, równoważenie bloków i punktów, nakładanie segmentów oraz inne mieszane transformacje.
 
-## Trudność i wyniki
+## Trudność, wyniki i analiza
 
-Trudność jest wewnętrzną skalą względną służącą do porównywania generowanych zadań i wyboru następnego elementu testu adaptacyjnego. Podsumowanie może pokazywać tylko kategorie jakościowe albo również wartości liczbowe. Maksymalna trudność z poprawną odpowiedzią oznacza najtrudniejsze oceniane zadanie rozwiązane poprawnie.
+Podsumowanie pokazuje najtrudniejsze poprawnie rozwiązane oceniane zadanie, pokrycie rodzin, stabilność przebiegu i powód zakończenia sesji. Porównuje też przebieg po kalibracji z symulowanymi ścieżkami wszystkich poprawnych i wszystkich błędnych odpowiedzi o tym samym początku; nie jest to percentyl populacyjny ani wynik IQ.
+
+Karta **Gauss** zapisuje historię lokalną, umożliwia eksport i import CSV, ponowne obliczenie zapisanych trudności oraz symulację 200 profili referencyjnych. Sesje adaptacyjne można też eksportować jako JSON i CSV.
 
 ## Tryb pojedynczego zadania
 
@@ -70,10 +86,10 @@ BlackWingMatrix jest eksperymentalnym narzędziem do ćwiczeń i względnej ocen
 ## Szybki start
 
 1. Otwórz wersję online albo samodzielny plik HTML.
-2. Wybierz **Test adaptacyjny** lub **Pojedyncze zadanie**.
-3. W razie potrzeby ustaw limit czasu i maksymalną liczbę zadań.
+2. Wybierz tryb sesji. **Stopniowy test adaptacyjny** jest wybrany domyślnie.
+3. Ustaw limit czasu i maksymalną liczbę zadań albo wybierz rodzinę i zakres dla pojedynczego zadania.
 4. Rozpocznij sesję i dla każdej macierzy wybierz jedną z ośmiu odpowiedzi.
-5. Na końcu sprawdź podsumowanie. Informacja zwrotna i wyjaśnienia pojawiają się tylko wtedy, gdy zostały włączone.
+5. Na końcu sprawdź podsumowanie albo wyeksportuj wyniki. Informacja zwrotna i wyjaśnienia pojawiają się tylko wtedy, gdy zostały włączone.
 
 ## Licencja i atrybucja
 
