@@ -55,11 +55,13 @@ La ricalibrazione relativa di una famiglia usa **esclusivamente il tempo di risp
 
 Per un tempo di risposta `t` in secondi, la difficoltà relativa osservata viene convertita nella scala interna con la curva esponenziale negativa limitata
 
-`D(t) = 5 + 55 × (1 − exp(−max(0, t − 1,364) / 8,7216))`.
+`D(t) = 5 + 55 × (1 − exp(−max(0, t − 1.364) / 8.7216))`.
 
 Il ritardo iniziale esclude risposte istantanee non plausibili; il termine esponenziale modella la saturazione empirica dei tempi di risposta nella parte alta della scala 0–60. Per ogni famiglia, il residuo `D(t) − difficoltàRichiesta` viene stimato sia localmente (pesi gaussiani con banda di 9 punti) sia come curva regolarizzata dipendente dal livello. La correzione combinata è limitata a ±10, moltiplicata per `(difficoltàRichiesta − 5) / 55` e applicata in modo continuo lungo l'intero intervallo della famiglia. Un'osservazione ad alta difficoltà non sposta quindi di una quantità fissa anche tutti gli esercizi facili della stessa famiglia.
 
 Il generatore usa poi il profilo calibrato inverso: quando il test richiede un punteggio, cerca il livello strutturale grezzo il cui punteggio calibrato sia più vicino al bersaglio. Calibrazione, esercizio singolo e tutte le modalità adattive usano quindi la stessa logica di generazione; nessuna famiglia viene collocata in una posizione fissa del test.
+
+La [specifica tecnica completa](docs/TIME_CALIBRATION.md) contiene tutte le formule di correzione e inversione, un grafico ad alta definizione generato con Python, il codice riproducibile per generarlo e le fonti scientifiche che motivano il modello.
 
 Dopo la calibrazione, il livello richiesto usa le prestazioni precedenti, il tempo di risposta, le serie di errori, la difficoltà più alta risolta correttamente e quanto una risposta errata sia vicina alla soluzione per quella specifica famiglia. La modalità graduale attenua inoltre la salita iniziale e smette di aumentare persistentemente quando agli alti livelli non emerge una riuscita affidabile.
 
