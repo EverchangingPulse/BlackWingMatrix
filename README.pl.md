@@ -49,6 +49,20 @@ Wszystkie generatory korzystają ze wspólnej wewnętrznej skali **0–60** w po
 
 Każda sesja adaptacyjna zaczyna się od trzech wygenerowanych zadań kalibracyjnych. Żądane trudności są wybierane na siatce 0,01: środkowy element ma 23–27, pierwszy 10–16, a trzeci uzupełnia sumę kalibracji 74–76. Rodziny są wybierane wyłącznie z generatorów, które potrafią rzeczywiście utworzyć żądaną trudność.
 
+### Kalibracja rodzin oparta na czasie
+
+Względna rekalibracja rodziny zadań używa **wyłącznie czasu odpowiedzi** z wyeksportowanych raportów. Poprawność i wybrana odpowiedź są celowo wykluczone: sterują testem adaptacyjnym, ale nie są dowodem, że generator jest sam w sobie łatwy lub trudny.
+
+Dla czasu odpowiedzi `t` w sekundach obserwowana trudność względna jest mapowana na skalę wewnętrzną ograniczoną ujemną krzywą wykładniczą:
+
+`D(t) = 5 + 55 × (1 − exp(−max(0, t − 1.364) / 8.7216))`.
+
+Próg początkowy odrzuca niewiarygodnie natychmiastowe odpowiedzi; składnik wykładniczy modeluje nasycenie czasów odpowiedzi w górnej części skali 0–60. Dla każdej rodziny reszta `D(t) − żądanaTrudność` jest szacowana lokalnie (wagi Gaussa, pasmo 9 punktów) i za pomocą regularyzowanej krzywej zależnej od poziomu. Korekta jest ograniczona do ±10, mnożona przez `(żądanaTrudność − 5) / 55` i stosowana ciągle w całym zakresie.
+
+Generator używa następnie odwrotnego profilu skalibrowanego: dla trudności docelowej szuka surowego poziomu strukturalnego o najbliższym wyniku skalibrowanym. Kalibracja, pojedyncze zadanie i wszystkie tryby adaptacyjne stosują więc tę samą logikę; żadna rodzina nie ma stałej pozycji w teście.
+
+[Pełna specyfikacja techniczna](docs/TIME_CALIBRATION.md) zawiera wszystkie wzory korekty i odwrócenia, wykres wysokiej rozdzielczości wygenerowany w Pythonie, odtwarzalny kod oraz naukowe źródła modelu.
+
 Po kalibracji następny poziom uwzględnia wcześniejsze wyniki, czas odpowiedzi, serie błędów, najwyższą poprawnie rozwiązaną trudność oraz bliskość błędnej opcji do rozwiązania w danej rodzinie. Tryb stopniowy tłumi początkowy wzrost i zapobiega trwałej eskalacji bez wiarygodnych sukcesów na wysokim poziomie.
 
 Cztery opcje są niezależne i domyślnie wyłączone: pokaż poprawnie/błędnie, pokaż wyjaśnienie, pokaż wartości liczbowe podczas testu oraz pokaż wartości liczbowe w podsumowaniu końcowym.
@@ -59,7 +73,7 @@ Po włączeniu BlackWingMatrix wyjaśnia zamierzoną regułę wizualną. Po bł�
 
 ## Rodziny zadań
 
-Generator obejmuje m.in. przesunięcia na siatce, relacje między kształtem zewnętrznym i symbolem wewnętrznym, układy punktów, kompozycje linii, logikę mini-siatek, obroty poliomin, kształty i wypełnienia, wypełnienia diagonalne, kolejność symboli, wzory radialne, równoważenie bloków i punktów, nakładanie segmentów oraz inne mieszane transformacje.
+Generator obejmuje m.in. przesunięcia na siatce, relacje między kształtem zewnętrznym i symbolem wewnętrznym, układy punktów, kompozycje linii, logikę mini-siatek, obroty poliomin, kształty i wypełnienia, wypełnienia diagonalne, kolejność symboli, wzory radialne, równoważenie bloków i punktów, arytmetykę trójkową z przeniesieniem, nakładanie segmentów oraz odrębną logikę obwodu i segmentów wewnętrznych. Rodziny segmentowe zachowują spójne figury, mogą zawierać cykle i oceniają wygenerowane oraz maksymalnie dostępne segmenty, a także operację boolowską.
 
 ## Trudność, wyniki i analiza
 
