@@ -49,6 +49,20 @@ Alle Generatoren teilen eine interne **0–60-Skala**. Sie wird in Einzelaufgabe
 
 Jede adaptive Sitzung beginnt mit drei erzeugten Kalibrierungsaufgaben. Die angeforderten Schwierigkeiten werden auf einem 0,01-Raster gewählt: das mittlere Element liegt bei 23–27, das erste bei 10–16 und das dritte ergänzt eine Kalibrierungssumme von 74–76. Familien werden nur aus Generatoren gewählt, die die angeforderte Schwierigkeit tatsächlich erzeugen können.
 
+### Zeitbasierte Familienkalibrierung
+
+Die relative Kalibrierung einer Aufgabenfamilie verwendet **ausschließlich die Antwortzeit** aus exportierten Berichten. Korrektheit und gewählte Antwort werden bewusst nicht verwendet: Sie steuern den adaptiven Test, belegen aber nicht, dass ein Generator an sich leicht oder schwer ist.
+
+Für eine Antwortzeit `t` in Sekunden wird die beobachtete relative Schwierigkeit mit der beschränkten negativen Exponentialkurve auf die interne Skala abgebildet:
+
+`D(t) = 5 + 55 × (1 − exp(−max(0, t − 1.364) / 8.7216))`.
+
+Die Anfangsverzögerung verwirft unplausibel sofortige Antworten; der Exponentialterm modelliert die Sättigung der Antwortzeiten am oberen Ende der 0–60-Skala. Für jede Familie wird das Residuum `D(t) − angeforderteSchwierigkeit` lokal (Gauß-Gewichte, Bandbreite 9) und als regularisierte, niveaubezogene Kurve geschätzt. Die Korrektur ist auf ±10 begrenzt, wird mit `(angeforderteSchwierigkeit − 5) / 55` multipliziert und kontinuierlich über den gesamten Bereich angewendet.
+
+Danach verwendet der Generator das inverse kalibrierte Profil: Für eine Zielschwierigkeit sucht er die rohe strukturelle Stufe mit dem nächsten kalibrierten Wert. Kalibrierung, Einzelaufgabe und alle adaptiven Modi nutzen damit dieselbe Logik; keine Familie besitzt eine feste Testposition.
+
+Die [vollständige technische Spezifikation](docs/TIME_CALIBRATION.md) enthält alle Korrektur- und Umkehrformeln, eine mit Python erzeugte hochauflösende Grafik, reproduzierbaren Code und die wissenschaftlichen Quellen des Modells.
+
 Nach der Kalibrierung berücksichtigen die nächsten Aufgaben frühere Leistung, Antwortzeit, Fehlerfolgen, die höchste korrekt gelöste Schwierigkeit und die Nähe einer falschen Option zur Lösung in dieser Familie. Der schrittweise Modus dämpft den frühen Anstieg und vermeidet dauerhafte Eskalation ohne zuverlässige Erfolge auf hohem Niveau.
 
 Vier Optionen sind unabhängig voneinander und standardmäßig deaktiviert: richtig/falsch anzeigen, Erklärung anzeigen, numerische Schwierigkeitswerte während des Tests anzeigen und numerische Werte in der Endauswertung anzeigen.
@@ -59,7 +73,7 @@ Wenn aktiviert, beschreibt BlackWingMatrix die vorgesehene visuelle Regel. Nach 
 
 ## Aufgabenfamilien
 
-Enthalten sind unter anderem Gitterbewegungen, Beziehungen zwischen Außenform und Innensymbol, Punktanordnungen, Linienkompositionen, Mini-Gitter-Logik, Polyomino-Drehungen, Formen und Füllungen, diagonale Füllungen, Symbolreihenfolgen, radiale Muster, Block- und Punktausgleich, Segmentüberlagerungen und gemischte Transformationen.
+Enthalten sind unter anderem Gitterbewegungen, Beziehungen zwischen Außenform und Innensymbol, Punktanordnungen, Linienkompositionen, Mini-Gitter-Logik, Polyomino-Drehungen, Formen und Füllungen, diagonale Füllungen, Symbolreihenfolgen, radiale Muster, Block- und Punktausgleich, ternäre Arithmetik mit Übertrag, Segmentüberlagerungen sowie getrennte Logik für Umfang und innere Segmente. Segmentfamilien behalten zusammenhängende Formen bei, können Zyklen enthalten und bewerten erzeugte und maximal verfügbare Segmente sowie die Boolesche Operation.
 
 ## Schwierigkeit, Ergebnisse und Analyse
 
