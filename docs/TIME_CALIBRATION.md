@@ -96,6 +96,18 @@ $$
 
 The existing family generator then receives `s*`. This is why a corrected difficulty changes the structural examples generated at every level while retaining the existing seed, family-capability and adaptive-selection infrastructure. Families without time observations use their requested target unchanged.
 
+## Updating calibration from exported reports
+
+Use the repository script to merge one or more exported adaptive-test reports and regenerate the calibration block in both `index.html` and `blackwingmatrix.html`:
+
+```bash
+python3 tools/recalibrate_reports.py report-a.csv report-b.json
+```
+
+Accepted input is CSV or JSON exported by BlackWingMatrix. The script retains only `family`, `itemScore` (or `targetDifficulty`) and response duration; it excludes ignored-too-fast records and records explicitly excluded from evaluation. Each imported report is tracked by its SHA-256 digest, so rerunning the script with the same file does not double-count it, while equal observations from *different* reports remain valid independent evidence. Observations are deterministically limited to 500 per family so the browser payload cannot grow without bound. It prints and writes `tools/last-recalibration-summary.json` with the included report paths, valid count, retained count, per-family sample sizes and active curve parameters.
+
+Use `--dry-run` to inspect the result without touching files. `--replace-observations` deliberately discards the embedded historical observations, so it is appropriate only when the supplied reports are the complete replacement dataset. By default the global saturation parameters are preserved and only the family profiles are updated. `--reestimate-curve` additionally performs a deterministic robust grid fit of the latency offset and time constant; use it only with a sufficiently broad, representative combined dataset.
+
 ## Evidence basis and limitations
 
 The implementation draws on established psychometric treatment of response time and on speed–accuracy trade-off research. It does **not** copy a published scoring equation or claim that the constants above are population parameters. Those constants are fitted from the supplied BlackWingMatrix reports and must be re-estimated as more representative data are collected.
