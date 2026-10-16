@@ -61,6 +61,8 @@ The lower delay removes implausibly instantaneous responses; the exponential ter
 
 Generation then uses the inverse calibrated profile: when the test requests a score, the generator searches for the raw structural level whose calibrated score is closest to that target. This keeps calibration, single-exercise generation and all adaptive modes on the same generator logic; no family is placed at a fixed test position.
 
+The [complete technical specification](docs/TIME_CALIBRATION.md) contains the full correction and inversion formulas, a high-resolution Python-generated plot, reproducible plotting code and the research sources used to motivate the model.
+
 After calibration, the next target uses the previous performance, response time, error streaks, the strongest correctly solved difficulty and how close a wrong alternative is to the correct solution for that exercise family. The gradual mode additionally dampens the early climb and stops persistent escalation when high-level answers show no reliable success.
 
 Four display options are independent and disabled by default: show correct/incorrect feedback, show the explanation, show numeric difficulty values during the test, and show numeric values in the final summary.
