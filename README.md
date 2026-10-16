@@ -49,6 +49,18 @@ All generators use one shared internal **0–60 difficulty scale**. It is used i
 
 Each adaptive session starts with three generated calibration exercises. Their requested difficulties are selected on a 0.01 grid: the middle item is between 23 and 27, the first is between 10 and 16, and the third completes a total calibration difficulty between 74 and 76. Calibration families are selected from generators that can actually produce the requested difficulty, rather than from a fixed family list.
 
+### Time-based family calibration
+
+The relative calibration of an exercise family uses **response time only** from exported reports. Correctness and the selected answer are deliberately excluded from this recalibration: they remain inputs to the adaptive session, not evidence that a generator is intrinsically easy or hard.
+
+For a response time `t` in seconds, the observed relative difficulty is mapped to the internal scale with the bounded negative-exponential curve
+
+`D(t) = 5 + 55 × (1 − exp(−max(0, t − 1.364) / 8.7216))`.
+
+The lower delay removes implausibly instantaneous responses; the exponential term models the empirical saturation of response time near the upper end of the 0–60 scale. For every family, the residual `D(t) − requestedDifficulty` is fitted both locally (Gaussian weights with a 9-point bandwidth) and as a regularised level-dependent curve. The combined correction is bounded to ±10, multiplied by `(requestedDifficulty − 5) / 55`, and applied continuously across the family’s range. Consequently, an observation at a high level does not shift every low-level instance by the same fixed amount.
+
+Generation then uses the inverse calibrated profile: when the test requests a score, the generator searches for the raw structural level whose calibrated score is closest to that target. This keeps calibration, single-exercise generation and all adaptive modes on the same generator logic; no family is placed at a fixed test position.
+
 After calibration, the next target uses the previous performance, response time, error streaks, the strongest correctly solved difficulty and how close a wrong alternative is to the correct solution for that exercise family. The gradual mode additionally dampens the early climb and stops persistent escalation when high-level answers show no reliable success.
 
 Four display options are independent and disabled by default: show correct/incorrect feedback, show the explanation, show numeric difficulty values during the test, and show numeric values in the final summary.
@@ -59,7 +71,7 @@ When enabled, BlackWingMatrix explains the intended visual rule and, after a wro
 
 ## Exercise families
 
-The generator includes grid movements, outer-shape/inner-symbol relations, dot arrangements, line compositions, mini-grid logic, polyomino rotations, shapes and fills, diagonal fills, symbol order, radial patterns, block and dot balancing, segment overlays and other mixed transformations.
+The generator includes grid movements, outer-shape/inner-symbol relations, dot arrangements, line compositions, mini-grid logic, polyomino rotations, shapes and fills, diagonal fills, symbol order, radial patterns, block and dot balancing, ternary arithmetic with carry, segment overlays, and perimeter-versus-interior segment logic. Segment families retain connected shapes, may include cycles, and score structural load from the number of generated and maximum available segments as well as the applied Boolean operation.
 
 ## Difficulty, results and analysis
 
