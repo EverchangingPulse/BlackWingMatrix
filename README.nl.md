@@ -49,6 +49,20 @@ Alle generators gebruiken één interne **0–60-schaal** voor enkele oefeningen
 
 Elke adaptieve sessie begint met drie gegenereerde kalibratieoefeningen. De gevraagde moeilijkheden worden op een raster van 0,01 gekozen: het middelste item ligt tussen 23 en 27, het eerste tussen 10 en 16 en het derde vult een kalibratietotaal tussen 74 en 76 aan. Families worden gekozen uit generators die de gevraagde moeilijkheid daadwerkelijk kunnen produceren.
 
+### Tijdgebaseerde kalibratie per familie
+
+De relatieve herkalibratie van een oefenfamilie gebruikt **uitsluitend reactietijd** uit geëxporteerde rapporten. Juistheid en het gekozen antwoord worden bewust uitgesloten: ze sturen de adaptieve test, maar bewijzen niet dat een generator op zichzelf makkelijk of moeilijk is.
+
+Voor een reactietijd `t` in seconden wordt de waargenomen relatieve moeilijkheid met de begrensde negatieve-exponentiële curve naar de interne schaal omgezet:
+
+`D(t) = 5 + 55 × (1 − exp(−max(0, t − 1.364) / 8.7216))`.
+
+De begindrempel sluit onwaarschijnlijk directe antwoorden uit; de exponentiële term modelleert de verzadiging van reactietijden aan de bovenkant van de 0–60-schaal. Voor elke familie wordt het residu `D(t) − gevraagdeMoeilijkheid` lokaal geschat (Gauss-gewichten, bandbreedte 9) en met een geregulariseerde niveau-afhankelijke curve. De correctie is begrensd tot ±10, wordt vermenigvuldigd met `(gevraagdeMoeilijkheid − 5) / 55` en continu over het hele bereik toegepast.
+
+De generator gebruikt vervolgens het omgekeerde gekalibreerde profiel: voor een doelmoeilijkheid zoekt hij het ruwe structurele niveau met de dichtstbijzijnde gekalibreerde score. Kalibratie, enkele oefening en alle adaptieve modi gebruiken dus dezelfde logica; geen familie heeft een vaste testpositie.
+
+De [volledige technische specificatie](docs/TIME_CALIBRATION.md) bevat alle correctie- en inversieformules, een met Python gemaakte hoge-resolutiegrafiek, reproduceerbare code en de wetenschappelijke bronnen van het model.
+
 Na de kalibratie houdt het volgende niveau rekening met eerdere prestaties, reactietijd, foutreeksen, de hoogste correct opgeloste moeilijkheid en de nabijheid van een fout alternatief tot de oplossing binnen die familie. De geleidelijke modus dempt de vroege stijging en voorkomt aanhoudende escalatie zonder betrouwbare hoge successen.
 
 Vier opties zijn onafhankelijk en standaard uitgeschakeld: correct/fout tonen, uitleg tonen, numerieke waarden tijdens de test tonen en numerieke waarden in het eindoverzicht tonen.
@@ -59,7 +73,7 @@ Wanneer ingeschakeld legt BlackWingMatrix de bedoelde visuele regel uit. Na een 
 
 ## Oefenfamilies
 
-De generator bevat onder meer rasterbewegingen, relaties tussen buitenvorm en binnensymbool, puntpatronen, lijncomposities, mini-rasterlogica, polyomino-rotaties, vormen en vullingen, diagonale vullingen, symboolvolgorde, radiale patronen, blok- en puntbalans, segmentoverlays en andere gemengde transformaties.
+De generator bevat onder meer rasterbewegingen, relaties tussen buitenvorm en binnensymbool, puntpatronen, lijncomposities, mini-rasterlogica, polyomino-rotaties, vormen en vullingen, diagonale vullingen, symboolvolgorde, radiale patronen, blok- en puntbalans, ternaire rekenkunde met overdracht, segmentoverlays en afzonderlijke logica voor omtrek en binnenste segmenten. Segmentfamilies behouden verbonden figuren, kunnen cycli bevatten en wegen gegenereerde en maximaal beschikbare segmenten plus de Booleaanse bewerking.
 
 ## Moeilijkheid, resultaten en analyse
 
