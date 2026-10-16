@@ -15,7 +15,7 @@
 
 **BlackWingMatrix** es una aplicación web autónoma para practicar razonamiento abstracto y visuoespacial mediante matrices lógicas 3×3 generadas de forma procedimental.
 
-Versión actual: **1.29.18**.
+Versión actual: **1.31.1**.
 
 ## Pruébalo en línea
 
@@ -33,9 +33,37 @@ Cada ejercicio muestra una matriz 3×3 a la que le falta la casilla inferior der
 - operaciones sobre mini-rejillas y lógica de conjuntos/booleana
 - problemas con varias reglas independientes que deben seguirse a la vez
 
-## Prueba adaptativa
+## Modos de sesión
 
-La prueba adaptativa comienza con tres ejercicios de calibración. Después, una respuesta correcta tiende a llevar el siguiente ejercicio a una dificultad interna mayor, mientras que una respuesta incorrecta tiende a reducirla. También se alternan las familias de ejercicios para evitar que el resultado dependa demasiado de un solo tipo de patrón.
+El selector ofrece cinco modos:
+
+- **Ejercicio individual** — genera un ejercicio reproducible; permite elegir familia y franja cualitativa y, cuando corresponda, transformaciones u operaciones booleanas.
+- **Prueba adaptativa** — sesión adaptativa estándar después de tres ejercicios de calibración.
+- **Prueba adaptativa de progresión gradual** — modo predeterminado; se acerca de forma más suave a la frontera estimada.
+- **Prueba panorámica progresiva** — aumenta progresivamente la dificultad y alterna familias adecuadas, sin adaptar el recorrido a las respuestas.
+- **Prueba por relación lógica** — practica un grupo seleccionado: transformaciones espaciales, lógica booleana, relaciones de filas, columnas, diagonales, exterior/interior o relaciones reutilizadas.
+
+## Prueba adaptativa y dificultad
+
+Todos los generadores usan una escala interna común de **0–60** para ejercicio individual, calibración y todos los modos de prueba; las seis etiquetas visibles solo son franjas cualitativas de esa escala.
+
+Cada sesión adaptativa comienza con tres ejercicios generados de calibración. Las dificultades solicitadas se eligen en una cuadrícula de 0,01: el elemento central está entre 23 y 27, el primero entre 10 y 16 y el tercero completa una suma de calibración entre 74 y 76. Las familias se escogen entre generadores capaces de producir realmente esa dificultad.
+
+### Calibración temporal por familia
+
+La recalibración relativa de una familia usa **solo el tiempo de respuesta** de los informes exportados. La corrección y la respuesta elegida se excluyen deliberadamente: alimentan la prueba adaptativa, pero no prueban que un generador sea intrínsecamente fácil o difícil.
+
+Para un tiempo de respuesta `t` en segundos, la dificultad relativa observada se transforma a la escala interna con la curva exponencial negativa acotada:
+
+`D(t) = 5 + 55 × (1 − exp(−max(0, t − 1.364) / 8.7216))`.
+
+El retraso inicial excluye respuestas instantáneas inverosímiles; el término exponencial modela la saturación de los tiempos de respuesta en la parte alta de la escala 0–60. Para cada familia, el residuo `D(t) − dificultadSolicitada` se estima localmente (pesos gaussianos, banda de 9 puntos) y mediante una curva regularizada dependiente del nivel. La corrección se limita a ±10, se multiplica por `(dificultadSolicitada − 5) / 55` y se aplica de forma continua en todo el intervalo.
+
+El generador usa después el perfil calibrado inverso: para una dificultad objetivo busca el nivel estructural bruto cuyo valor calibrado es más cercano. La calibración, el ejercicio individual y todos los modos adaptativos comparten así la misma lógica; ninguna familia ocupa una posición fija.
+
+La [especificación técnica completa](docs/TIME_CALIBRATION.md) contiene todas las fórmulas de corrección e inversión, un gráfico de alta resolución generado con Python, el código reproducible y las fuentes científicas del modelo.
+
+Después de la calibración, el siguiente nivel considera el rendimiento anterior, el tiempo de respuesta, las rachas de errores, la dificultad más alta resuelta correctamente y la cercanía de una opción errónea a la solución dentro de esa familia. El modo gradual amortigua la subida inicial y evita una escalada persistente sin aciertos fiables en niveles altos.
 
 Cuatro opciones son independientes y están desactivadas por defecto: mostrar correcto/incorrecto, mostrar explicación, mostrar valores numéricos durante la prueba y mostrar valores numéricos en el resumen final.
 
@@ -45,11 +73,13 @@ Cuando están activados, BlackWingMatrix explica la regla visual prevista y, tra
 
 ## Familias de ejercicios
 
-El generador incluye movimientos en rejilla, relaciones entre forma exterior y símbolo interior, disposiciones de puntos, composiciones de líneas, lógica de mini-rejillas, rotaciones de poliominós, formas y rellenos, rellenos diagonales, orden de símbolos, patrones radiales, equilibrio de bloques y puntos, superposición de segmentos y otras transformaciones mixtas.
+El generador incluye movimientos en rejilla, relaciones entre forma exterior y símbolo interior, disposiciones de puntos, composiciones de líneas, lógica de mini-rejillas, rotaciones de poliominós, formas y rellenos, rellenos diagonales, orden de símbolos, patrones radiales, equilibrio de bloques y puntos, aritmética ternaria con llevada, superposición de segmentos y lógica diferenciada de perímetro y segmentos internos. Las familias de segmentos mantienen figuras conectadas, pueden incluir ciclos y puntúan los segmentos generados y máximos disponibles, además de la operación booleana.
 
-## Dificultad y resultados
+## Dificultad, resultados y análisis
 
-La dificultad es una escala interna relativa utilizada para comparar ejercicios generados y elegir el siguiente elemento de la prueba adaptativa. El resumen final puede mostrar solo categorías cualitativas o también valores numéricos. La dificultad máxima con respuesta correcta es el ejercicio evaluado más difícil que se respondió correctamente.
+El resumen final informa del ejercicio evaluado más difícil resuelto correctamente, la cobertura de familias, la estabilidad del recorrido y el motivo de finalización. También compara el recorrido posterior a la calibración con referencias simuladas de todo correcto y todo incorrecto con el mismo punto de partida; no es un percentil poblacional ni una puntuación de CI.
+
+La pestaña **Gaussiana** conserva el historial local, permite exportar e importar CSV, recalcular las dificultades guardadas y simular 200 perfiles de referencia. Las sesiones adaptativas también se pueden exportar como JSON y CSV.
 
 ## Modo de ejercicio individual
 
@@ -70,10 +100,10 @@ BlackWingMatrix es una herramienta experimental de práctica y evaluación relat
 ## Inicio rápido
 
 1. Abre la versión en línea o el archivo HTML autónomo.
-2. Elige **Prueba adaptativa** o **Ejercicio individual**.
-3. Si es necesario, configura el límite de tiempo y el máximo de ejercicios.
+2. Elige un modo de sesión. **Prueba adaptativa de progresión gradual** está seleccionada de forma predeterminada.
+3. Configura el límite de tiempo y el máximo de ejercicios, o elige familia y franja para un ejercicio individual.
 4. Inicia la sesión y elige una de las ocho respuestas para cada matriz.
-5. Al final consulta el resumen. Los comentarios y explicaciones solo aparecen si los has activado.
+5. Al final consulta el resumen o exporta los resultados. Los comentarios y explicaciones solo aparecen si los has activado.
 
 ## Licencia y atribución
 
