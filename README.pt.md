@@ -49,6 +49,20 @@ Todos os geradores usam uma escala interna comum de **0–60** no exercício ún
 
 Cada sessão adaptativa começa com três exercícios de calibração gerados. As dificuldades pedidas são escolhidas numa grelha de 0,01: o elemento central está entre 23 e 27, o primeiro entre 10 e 16 e o terceiro completa uma soma de calibração entre 74 e 76. As famílias são escolhidas entre geradores capazes de produzir realmente a dificuldade pedida.
 
+### Calibração temporal por família
+
+A recalibração relativa de uma família usa **apenas o tempo de resposta** dos relatórios exportados. A correção e a resposta escolhida são deliberadamente excluídas: alimentam o teste adaptativo, mas não demonstram que um gerador seja intrinsecamente fácil ou difícil.
+
+Para um tempo de resposta `t` em segundos, a dificuldade relativa observada é convertida para a escala interna pela curva exponencial negativa limitada:
+
+`D(t) = 5 + 55 × (1 − exp(−max(0, t − 1.364) / 8.7216))`.
+
+O atraso inicial exclui respostas instantâneas implausíveis; o termo exponencial modela a saturação dos tempos de resposta no topo da escala 0–60. Para cada família, o resíduo `D(t) − dificuldadePedida` é estimado localmente (pesos gaussianos, banda de 9 pontos) e por uma curva regularizada dependente do nível. A correção é limitada a ±10, multiplicada por `(dificuldadePedida − 5) / 55` e aplicada continuamente em todo o intervalo.
+
+O gerador usa depois o perfil calibrado inverso: para uma dificuldade-alvo procura o nível estrutural bruto cujo valor calibrado é o mais próximo. Calibração, exercício único e todos os modos adaptativos usam assim a mesma lógica; nenhuma família ocupa uma posição fixa.
+
+A [especificação técnica completa](docs/TIME_CALIBRATION.md) contém todas as fórmulas de correção e inversão, um gráfico de alta resolução gerado em Python, o código reprodutível e as fontes científicas do modelo.
+
 Depois da calibração, o nível seguinte considera desempenho anterior, tempo de resposta, sequências de erros, a maior dificuldade resolvida corretamente e a proximidade de uma opção errada à solução nessa família. O modo gradual amortece a subida inicial e evita uma escalada persistente sem êxito fiável nos níveis altos.
 
 Quatro opções são independentes e estão desativadas por predefinição: mostrar correto/incorreto, mostrar explicação, mostrar valores numéricos durante o teste e mostrar valores numéricos no resumo final.
@@ -59,7 +73,7 @@ Quando ativado, o BlackWingMatrix explica a regra visual pretendida e, após uma
 
 ## Famílias de exercícios
 
-O gerador inclui movimentos em grelha, relações entre forma exterior e símbolo interior, disposições de pontos, composições de linhas, lógica em mini-grelhas, rotações de poliminós, formas e preenchimentos, preenchimentos diagonais, ordem de símbolos, padrões radiais, equilíbrio de blocos e pontos, sobreposição de segmentos e outras transformações mistas.
+O gerador inclui movimentos em grelha, relações entre forma exterior e símbolo interior, disposições de pontos, composições de linhas, lógica em mini-grelhas, rotações de poliminós, formas e preenchimentos, preenchimentos diagonais, ordem de símbolos, padrões radiais, equilíbrio de blocos e pontos, aritmética ternária com transporte, sobreposição de segmentos e lógica distinta de perímetro e segmentos internos. As famílias de segmentos mantêm figuras ligadas, podem incluir ciclos e pontuam os segmentos gerados e máximos disponíveis, bem como a operação booleana.
 
 ## Dificuldade, resultados e análise
 
