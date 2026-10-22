@@ -21,14 +21,15 @@ sandbox.window=sandbox;
 vm.createContext(sandbox);
 vm.runInContext(core.slice(0,coreEnd)+'\n'+core.slice(practiceStart,practiceEnd)+'\n'+core.slice(progressiveStart,progressiveEnd)+'\nglobalThis.__makeBalancedPuzzle=makeBalancedPuzzle;globalThis.__makePracticePuzzle=makePracticePuzzle;globalThis.__practiceRange=difficultyRangeForTier;globalThis.__practiceScore=practiceDifficultyForSeed;globalThis.__generatorTier=generatorTierForDifficulty;globalThis.__familyGeneratorTier=familyGeneratorTierForDifficulty;globalThis.__familyProfile=familyDifficultyProfile;globalThis.__progressiveSteps=PROGRESSIVE_DIFFICULTY_STEPS;globalThis.__progressiveFamiliesAtStep=progressiveFamiliesAtStep;globalThis.__progressiveSurveyPlan=progressiveSurveyPlan;globalThis.__progressiveSpectrum=progressiveFamilyDifficulties;globalThis.__progressiveRangeSpectrum=progressiveDifficultiesForRange;globalThis.__progressiveSpectrumPlan=progressiveFamilySpectrumPlan;globalThis.__familyGenerationRange=familyGenerationDifficultyRange;globalThis.__empiricalFamilies=Object.keys(EMPIRICAL_FAMILY_LEVELS);globalThis.__renderFigure=renderFigure;',sandbox);
 
-const families=['custom','logical','affine','outline','outline-relations','marker-grid','carrier-token','dot-arrangement','line-assembly','spatial-tokens','grid-logic','ternary-carry','polyomino','shape-fill','split-fill','symbol-order','composition','spoke-pattern','motif-count','radial-flower','fill-grid','paired-polygons','block-balance','axis-symbols','horizontal-anchors','dot-balance','xor-blocks','line-xor','line-perimeter-logic','operator-transfer','minkowski-dilation','convex-hull','kronecker-product','cartesian-product','reference-mix','mixed','simple','progression','cycle'];
+const families=['custom','logical','affine','outline','outline-relations','marker-grid','carrier-token','dot-arrangement','line-assembly','spatial-tokens','grid-logic','ternary-carry','polyomino','shape-fill','split-fill','symbol-order','composition','spoke-pattern','motif-count','radial-flower','fill-grid','paired-polygons','block-balance','axis-symbols','horizontal-anchors','dot-balance','xor-blocks','lane-matching','line-xor','line-perimeter-logic','operator-transfer','minkowski-dilation','convex-hull','kronecker-product','cartesian-product','reference-mix','mixed','simple','progression','cycle'];
 const regressionCases=[{family:'custom',level:1,seed:'single-render-custom-1-2'}];
 const failures=[];
 let puzzles=0,figures=0;
 
 function verifyPuzzle(puzzle,context){
  if(!Array.isArray(puzzle.cells)||puzzle.cells.length!==9)throw new Error('Expected nine matrix cells.');
- if(!Array.isArray(puzzle.options)||puzzle.options.length!==8)throw new Error('Expected eight answers.');
+ const expectedOptions=Number.isInteger(puzzle.answerOptionCount)?puzzle.answerOptionCount:8;
+ if(!Array.isArray(puzzle.options)||puzzle.options.length!==expectedOptions)throw new Error('Expected '+expectedOptions+' answers.');
  if(!Number.isInteger(puzzle.answer)||puzzle.answer<0||puzzle.answer>=puzzle.options.length)throw new Error('The correct answer is missing.');
  for(const tile of [...puzzle.cells,...puzzle.options]){const svg=sandbox.__renderFigure(tile);if(typeof svg!=='string'||!svg.includes('<svg'))throw new Error('A tile did not render to SVG.');figures++}
  puzzles++;
@@ -62,7 +63,7 @@ function verifyProgressivePlanning(){
   }
  }
  for(const family of sandbox.__empiricalFamilies)if(!coveredFamilies.has(family))throw new Error('Progressive survey never schedules '+family+'.');
- for(const family of ['shape-fill','minkowski-dilation','convex-hull','custom','xor-blocks','line-xor']){
+ for(const family of ['shape-fill','minkowski-dilation','convex-hull','custom','xor-blocks','lane-matching','line-xor']){
   const range=sandbox.__familyGenerationRange(family),profile=[...sandbox.__familyProfile(family)],spectrum=[...sandbox.__progressiveSpectrum(family)],plan=sandbox.__progressiveSpectrumPlan(family),expectedSpectrum=[...new Set(profile.map(value=>+Number(value).toFixed(1)))].sort((left,right)=>left-right);
   if(!spectrum.length||spectrum[0]!==range.min||spectrum.at(-1)!==range.max)throw new Error('Family spectrum omits a calibrated endpoint for '+family+'.');
   if(JSON.stringify(spectrum)!==JSON.stringify(expectedSpectrum))throw new Error('Family spectrum must contain each calibrated generator level for '+family+'.');
@@ -211,12 +212,43 @@ function verifyXorBlocksFamily(){
  if(!serpentineMirrors.has(true)||!serpentineMirrors.has(false))throw new Error('XOR-block serpentine paths must cover both horizontal mirror variants.');
  if(nonRectangularStates<120)throw new Error('XOR-block output has collapsed into rectangles instead of the source grid patterns.');
 }
+function laneCompose(after,before){return before.map(target=>after[target]);}
+function laneIsMatching(mapping){return Array.isArray(mapping)&&mapping.length===3&&[...mapping].sort((a,b)=>a-b).join(',')==='0,1,2';}
+function verifyLaneMatchingFamily(){
+ const expectedVariants=['independent-rows','independent-rows','shared-vertical-orbit','local-edit-chain','counter-rotating-columns','counter-rotating-columns'],variants=new Set(),allMappings=new Set();
+ for(let level=1;level<=6;level++)for(let variant=0;variant<24;variant++){
+  const puzzle=sandbox.__makeBalancedPuzzle('lane-matching-semantics|'+level+'|'+variant,level,'lane-matching');
+  verifyPuzzle(puzzle,{family:'lane-matching',level,variant});
+  if(puzzle.options.length!==6||puzzle.answerOptionCount!==6)throw new Error('Three-lane matching must expose exactly the six legal one-to-one answers.');
+  const model=puzzle.generator?.laneMatching;
+  if(!model||model.lanes!==3||model.entryAndExitHorizontalFraction!==.15||model.rowClosure!=='inverse(second o first)')throw new Error('Three-lane generator metadata is incomplete.');
+  if(model.variant!==expectedVariants[level-1])throw new Error('Three-lane variant does not match its tier.');
+  variants.add(model.variant);
+  const optionKeys=new Set();
+  for(const option of puzzle.options){
+   if(option?.kind!=='lane-matching'||!laneIsMatching(option.mapping))throw new Error('A three-lane answer is not a one-to-one matching.');
+   const key=option.mapping.join(',');if(optionKeys.has(key))throw new Error('Three-lane answers contain a visual duplicate.');optionKeys.add(key);allMappings.add(key);
+   const svg=sandbox.__renderFigure(option);if(svg.includes('<text'))throw new Error('Three-lane tiles must not expose internal A/B/C labels.');
+   if(option.mapping.some((target,source)=>target!==source)&&(!svg.includes('H30.6')||!svg.includes(' 89.4 ')))throw new Error('A curved three-lane connection does not keep its 15% horizontal entry and exit.');
+  }
+  if(optionKeys.size!==6)throw new Error('Three-lane answers do not cover the full legal answer space.');
+  for(let row=0;row<3;row++){
+   const [first,second,third]=puzzle.cells.slice(row*3,row*3+3);
+   if(![first,second,third].every(tile=>tile?.kind==='lane-matching'&&laneIsMatching(tile.mapping)))throw new Error('A matrix cell is not a valid three-lane matching.');
+   if(laneCompose(third.mapping,laneCompose(second.mapping,first.mapping)).join(',')!=='0,1,2')throw new Error('A three-lane matrix row does not return every path to its original height.');
+  }
+  if(puzzle.options[puzzle.answer].mapping.join(',')!==puzzle.cells[8].mapping.join(','))throw new Error('The three-lane answer does not equal the missing visible matching.');
+ }
+ if(allMappings.size!==6)throw new Error('The three-lane family did not render all six legal matchings.');
+ for(const required of new Set(expectedVariants))if(!variants.has(required))throw new Error('The three-lane family did not cover '+required+'.');
+}
 
 for(const {family,level,seed} of regressionCases)try{verifyPuzzle(sandbox.__makeBalancedPuzzle(seed,level,family),{family,level,seed})}catch(error){failures.push({family,level,seed,message:error.message})}
 try{verifySingleExerciseDifficultySelection()}catch(error){failures.push({family:'single-exercise-difficulty-selection',message:error.message})}
 try{verifyProgressivePlanning()}catch(error){failures.push({family:'progressive-test-planning',message:error.message})}
 try{verifyXorBinaryReference()}catch(error){failures.push({family:'xor-blocks-binary-reference',message:error.message})}
 try{verifyXorBlocksFamily()}catch(error){failures.push({family:'xor-blocks-semantics',message:error.message})}
+try{verifyLaneMatchingFamily()}catch(error){failures.push({family:'lane-matching-semantics',message:error.message})}
 for(const family of families)for(let level=1;level<=6;level++)for(let variant=0;variant<3;variant++){
  const seed='single-exercise|'+family+'|'+level+'|'+variant;
  try{verifyPuzzle(sandbox.__makeBalancedPuzzle(seed,level,family),{family,level,seed})}
