@@ -57,7 +57,10 @@ def row_observation(row: dict[str, Any]) -> Observation | None:
     grid = int(round(grid_value)) if grid_value is not None and 2 <= grid_value <= 4 else None
     if not family or score is None or seconds is None:
         return None
-    if not (1.0 <= score <= 60.0 and 0 < seconds <= MAX_SECONDS):
+    # Progressive structural calibration legitimately includes the 0–1 band.
+    # Keep those observations instead of silently dropping the introductory
+    # exercises when re-fitting response-time expectations.
+    if not (0.0 <= score <= 60.0 and 0 < seconds <= MAX_SECONDS):
         return None
     return family, round(score, 3), round(seconds, 3), grid
 
@@ -111,7 +114,7 @@ def observation_from_payload(family: str, value: Any) -> Observation | None:
     score, seconds = as_number(value[0]), as_number(value[1])
     grid_value = as_number(value[2]) if len(value) > 2 else None
     grid = int(round(grid_value)) if grid_value is not None and 2 <= grid_value <= 4 else None
-    if score is None or seconds is None or not (1 <= score <= 60 and 0 < seconds <= MAX_SECONDS):
+    if score is None or seconds is None or not (0 <= score <= 60 and 0 < seconds <= MAX_SECONDS):
         return None
     return family, round(score, 3), round(seconds, 3), grid
 
