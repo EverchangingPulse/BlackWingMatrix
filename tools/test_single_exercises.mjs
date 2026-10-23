@@ -19,16 +19,17 @@ if(progressiveStart<0||progressiveEnd<0)throw new Error('Could not locate the pr
 const sandbox={console,window:{},document:{getElementById:()=>null,querySelector:()=>null,querySelectorAll:()=>[],createElement:()=>({}),body:{}},localStorage:{getItem:()=>null,setItem:()=>{}},navigator:{},setTimeout:()=>{},clearTimeout:()=>{},Math,JSON,Date};
 sandbox.window=sandbox;
 vm.createContext(sandbox);
-vm.runInContext(core.slice(0,coreEnd)+'\n'+core.slice(practiceStart,practiceEnd)+'\n'+core.slice(progressiveStart,progressiveEnd)+'\nglobalThis.__makeBalancedPuzzle=makeBalancedPuzzle;globalThis.__makePracticePuzzle=makePracticePuzzle;globalThis.__practiceRange=difficultyRangeForTier;globalThis.__practiceScore=practiceDifficultyForSeed;globalThis.__generatorTier=generatorTierForDifficulty;globalThis.__familyGeneratorTier=familyGeneratorTierForDifficulty;globalThis.__familyProfile=familyDifficultyProfile;globalThis.__progressiveSteps=PROGRESSIVE_DIFFICULTY_STEPS;globalThis.__progressiveFamiliesAtStep=progressiveFamiliesAtStep;globalThis.__progressiveSurveyPlan=progressiveSurveyPlan;globalThis.__progressiveSpectrum=progressiveFamilyDifficulties;globalThis.__progressiveRangeSpectrum=progressiveDifficultiesForRange;globalThis.__progressiveSpectrumPlan=progressiveFamilySpectrumPlan;globalThis.__familyGenerationRange=familyGenerationDifficultyRange;globalThis.__empiricalFamilies=Object.keys(EMPIRICAL_FAMILY_LEVELS);globalThis.__renderFigure=renderFigure;',sandbox);
+vm.runInContext(core.slice(0,coreEnd)+'\n'+core.slice(practiceStart,practiceEnd)+'\n'+core.slice(progressiveStart,progressiveEnd)+'\nglobalThis.__makeBalancedPuzzle=makeBalancedPuzzle;globalThis.__makePracticePuzzle=makePracticePuzzle;globalThis.__practiceRange=difficultyRangeForTier;globalThis.__practiceScore=practiceDifficultyForSeed;globalThis.__generatorTier=generatorTierForDifficulty;globalThis.__familyGeneratorTier=familyGeneratorTierForDifficulty;globalThis.__familyProfile=familyDifficultyProfile;globalThis.__progressiveSteps=PROGRESSIVE_DIFFICULTY_STEPS;globalThis.__progressiveFamiliesAtStep=progressiveFamiliesAtStep;globalThis.__progressiveSurveyPlan=progressiveSurveyPlan;globalThis.__progressiveSpectrum=progressiveFamilyDifficulties;globalThis.__progressiveRangeSpectrum=progressiveDifficultiesForRange;globalThis.__progressiveSpectrumPlan=progressiveFamilySpectrumPlan;globalThis.__familyGenerationRange=familyGenerationDifficultyRange;globalThis.__empiricalFamilies=Object.keys(EMPIRICAL_FAMILY_LEVELS);globalThis.__renderFigure=renderFigure;globalThis.__explanationLines=explanationLines;globalThis.__answerDifferenceLines=answerDifferenceLines;globalThis.__setLanguage=value=>activeLanguage=value;',sandbox);
 
-const families=['custom','logical','affine','outline','outline-relations','marker-grid','carrier-token','dot-arrangement','line-assembly','spatial-tokens','grid-logic','ternary-carry','polyomino','shape-fill','split-fill','symbol-order','composition','spoke-pattern','motif-count','radial-flower','fill-grid','paired-polygons','block-balance','axis-symbols','horizontal-anchors','dot-balance','xor-blocks','line-xor','line-perimeter-logic','operator-transfer','minkowski-dilation','convex-hull','kronecker-product','cartesian-product','reference-mix','mixed','simple','progression','cycle'];
+const families=['custom','logical','affine','outline','outline-relations','marker-grid','carrier-token','dot-arrangement','line-assembly','spatial-tokens','grid-logic','ternary-carry','polyomino','shape-fill','split-fill','symbol-order','composition','spoke-pattern','motif-count','radial-flower','fill-grid','paired-polygons','block-balance','axis-symbols','horizontal-anchors','dot-balance','xor-blocks','lane-matching','line-xor','line-perimeter-logic','operator-transfer','minkowski-dilation','convex-hull','kronecker-product','cartesian-product','reference-mix','mixed','simple','progression','cycle'];
 const regressionCases=[{family:'custom',level:1,seed:'single-render-custom-1-2'}];
 const failures=[];
 let puzzles=0,figures=0;
 
 function verifyPuzzle(puzzle,context){
  if(!Array.isArray(puzzle.cells)||puzzle.cells.length!==9)throw new Error('Expected nine matrix cells.');
- if(!Array.isArray(puzzle.options)||puzzle.options.length!==8)throw new Error('Expected eight answers.');
+ const expectedOptions=Number.isInteger(puzzle.answerOptionCount)?puzzle.answerOptionCount:8;
+ if(!Array.isArray(puzzle.options)||puzzle.options.length!==expectedOptions)throw new Error('Expected '+expectedOptions+' answers.');
  if(!Number.isInteger(puzzle.answer)||puzzle.answer<0||puzzle.answer>=puzzle.options.length)throw new Error('The correct answer is missing.');
  for(const tile of [...puzzle.cells,...puzzle.options]){const svg=sandbox.__renderFigure(tile);if(typeof svg!=='string'||!svg.includes('<svg'))throw new Error('A tile did not render to SVG.');figures++}
  puzzles++;
@@ -62,7 +63,7 @@ function verifyProgressivePlanning(){
   }
  }
  for(const family of sandbox.__empiricalFamilies)if(!coveredFamilies.has(family))throw new Error('Progressive survey never schedules '+family+'.');
- for(const family of ['shape-fill','minkowski-dilation','convex-hull','custom','xor-blocks','line-xor']){
+ for(const family of ['shape-fill','minkowski-dilation','convex-hull','custom','xor-blocks','lane-matching','line-xor']){
   const range=sandbox.__familyGenerationRange(family),profile=[...sandbox.__familyProfile(family)],spectrum=[...sandbox.__progressiveSpectrum(family)],plan=sandbox.__progressiveSpectrumPlan(family),expectedSpectrum=[...new Set(profile.map(value=>+Number(value).toFixed(1)))].sort((left,right)=>left-right);
   if(!spectrum.length||spectrum[0]!==range.min||spectrum.at(-1)!==range.max)throw new Error('Family spectrum omits a calibrated endpoint for '+family+'.');
   if(JSON.stringify(spectrum)!==JSON.stringify(expectedSpectrum))throw new Error('Family spectrum must contain each calibrated generator level for '+family+'.');
@@ -128,6 +129,11 @@ function xorSerpentineProjectionIsReadable(motion,targetPhase){
  const before=xorMotionPositionAtPhase(motion,targetPhase-2),previous=xorMotionPositionAtPhase(motion,targetPhase-1),current=xorMotionPositionAtPhase(motion,targetPhase),first={x:previous.x-before.x,y:previous.y-before.y},second={x:current.x-previous.x,y:current.y-previous.y};
  return Boolean(first.x||first.y)&&first.x===second.x&&first.y===second.y;
 }
+function xorSerpentineProjectionIsOutbound(motion,targetPhase){
+ if(motion.kind!=='serpentine')return true;
+ const phase=((motion.start+motion.direction*targetPhase)%16+16)%16;
+ return motion.direction===1&&phase<=8;
+}
 function xorSerpentineRetracesAtEnds(motion){
  if(motion.kind!=='serpentine')return true;
  const endpoints=motion.mirrorX?['2,0','0,2']:['0,0','2,2'],key=position=>position.x+','+position.y;
@@ -175,6 +181,7 @@ function verifyXorBlocksFamily(){
    if(!xorMotionRespectsMomentum(motion))throw new Error('XOR-block motion reverses an axis before reaching the corresponding board edge.');
    if(!xorSerpentineRetracesAtEnds(motion))throw new Error('XOR-block serpentine path does not retrace immediately after an endpoint.');
    if(!xorSerpentineProjectionIsReadable(motion,model.projectionPhase))throw new Error('XOR-block missing panel follows a serpentine corner before its direction is visible.');
+   if(!xorSerpentineProjectionIsOutbound(motion,model.projectionPhase))throw new Error('XOR-block missing panel is determined by a serpentine return sweep.');
    if(motion.kind==='circle')circleDirections.add(motion.direction);
    if(motion.kind==='linear')linearAxes.add(motion.axis);
    if(motion.kind==='serpentine'){serpentineDirections.add(motion.direction);serpentineMirrors.add(Boolean(motion.mirrorX));}
@@ -207,9 +214,66 @@ function verifyXorBlocksFamily(){
  if(starts.some(set=>set.size<3))throw new Error('XOR-block starting positions are not sufficiently varied across seeds.');
  if(!circleDirections.has(1)||!circleDirections.has(-1))throw new Error('XOR-block circles must cover both clockwise and counter-clockwise movement.');
  if(!linearAxes.has('horizontal')||!linearAxes.has('vertical'))throw new Error('XOR-block linear paths must cover both axes.');
- if(!serpentineDirections.has(1)||!serpentineDirections.has(-1))throw new Error('XOR-block serpentine paths must cover both directions.');
+ if(!serpentineDirections.has(1)||serpentineDirections.has(-1))throw new Error('XOR-block serpentine paths must keep the missing panel on their outward sweep.');
  if(!serpentineMirrors.has(true)||!serpentineMirrors.has(false))throw new Error('XOR-block serpentine paths must cover both horizontal mirror variants.');
  if(nonRectangularStates<120)throw new Error('XOR-block output has collapsed into rectangles instead of the source grid patterns.');
+}
+function laneCompose(after,before){return before.map(target=>after[target]);}
+function laneIdentity(lanes){return Array.from({length:lanes},(_,index)=>index);}
+function laneIsMatching(mapping,lanes){return Array.isArray(mapping)&&mapping.length===lanes&&mapping.every(value=>Number.isInteger(value)&&value>=0&&value<lanes)&&new Set(mapping).size===lanes;}
+function verifyLaneMatchingFamily(){
+ const expectedTiers=[
+  {lanes:3,variant:'independent-rows',options:6,legal:6},
+  {lanes:3,variant:'independent-rows',options:6,legal:6},
+  {lanes:3,variant:'shared-vertical-orbit',options:6,legal:6},
+  {lanes:4,variant:'four-lane-edit-chain',options:8,legal:24},
+  {lanes:5,variant:'five-lane-counter-rotating',options:8,legal:120},
+  {lanes:5,variant:'five-lane-dense-weave',options:8,legal:120}
+ ],variants=new Set(),allMappings=new Map([[3,new Set()],[4,new Set()],[5,new Set()]]);
+ for(let level=1;level<=6;level++)for(let variant=0;variant<24;variant++){
+  const puzzle=sandbox.__makeBalancedPuzzle('lane-matching-semantics|'+level+'|'+variant,level,'lane-matching');
+  verifyPuzzle(puzzle,{family:'lane-matching',level,variant});
+  const expected=expectedTiers[level-1];
+  if(puzzle.options.length!==expected.options||puzzle.answerOptionCount!==expected.options)throw new Error('Lane matching does not expose the expected number of answer routes for its tier.');
+  const model=puzzle.generator?.laneMatching;
+  if(!model||model.lanes!==expected.lanes||model.availableMatchings!==expected.legal||model.answerOptions!==expected.options||model.entryAndExitHorizontalFraction!==.15||model.rowClosure!=='inverse(second o first)')throw new Error('Lane-matching generator metadata is incomplete.');
+  if(model.variant!==expected.variant)throw new Error('Lane-matching variant does not match its tier.');
+  variants.add(model.variant);
+  const optionKeys=new Set(),renderedKeys=new Set();
+  for(const option of puzzle.options){
+   if(option?.kind!=='lane-matching'||!laneIsMatching(option.mapping,expected.lanes))throw new Error('A lane-matching answer is not a one-to-one matching.');
+   const key=option.mapping.join(',');if(optionKeys.has(key))throw new Error('Lane-matching answers contain a visual duplicate.');optionKeys.add(key);allMappings.get(expected.lanes).add(key);
+   const svg=sandbox.__renderFigure(option);if(renderedKeys.has(svg))throw new Error('Distinct lane-matching mappings rendered as the same visible tile.');renderedKeys.add(svg);
+   if(svg.includes('<text'))throw new Error('Lane-matching tiles must not expose internal A/B/C labels.');
+   if((svg.match(/<circle\b[^>]*fill="#111"/g)||[]).length!==expected.lanes*2||(svg.match(/<path\b[^>]*stroke="#111"/g)||[]).length!==expected.lanes)throw new Error('Lane-matching SVG does not show one route and two endpoint dots for every lane.');
+   if(option.mapping.some((target,source)=>target!==source)&&(!svg.includes('H30.6')||!svg.includes(' 89.4 ')))throw new Error('A curved lane connection does not keep its 15% horizontal entry and exit.');
+  }
+  if(optionKeys.size!==expected.options)throw new Error('Lane-matching answers are not all visibly distinct.');
+  for(let row=0;row<3;row++){
+   const [first,second,third]=puzzle.cells.slice(row*3,row*3+3);
+   if(![first,second,third].every(tile=>tile?.kind==='lane-matching'&&laneIsMatching(tile.mapping,expected.lanes)))throw new Error('A matrix cell is not a valid lane matching.');
+   if(laneCompose(third.mapping,laneCompose(second.mapping,first.mapping)).join(',')!==laneIdentity(expected.lanes).join(','))throw new Error('A lane-matching matrix row does not return every path to its original height.');
+  }
+  if(puzzle.options[puzzle.answer].mapping.join(',')!==puzzle.cells[8].mapping.join(','))throw new Error('The lane-matching answer does not equal the missing visible matching.');
+ }
+ if(allMappings.get(3).size!==6)throw new Error('The three-lane tiers did not render all six legal matchings.');
+ if(allMappings.get(4).size<16)throw new Error('The four-lane tier does not sample enough distinct one-to-one matchings.');
+ if(allMappings.get(5).size<40)throw new Error('The five-lane tiers do not sample enough distinct one-to-one matchings.');
+ for(const required of new Set(expectedTiers.map(item=>item.variant)))if(!variants.has(required))throw new Error('The lane-matching family did not cover '+required+'.');
+}
+function verifyLaneMatchingExplanations(){
+ for(let level=1;level<=6;level++)for(let variant=0;variant<8;variant++){
+  const puzzle=sandbox.__makeBalancedPuzzle('lane-matching-explanation|'+level+'|'+variant,level,'lane-matching');
+  sandbox.__setLanguage('it');
+  const guide=sandbox.__explanationLines(puzzle).join(' '),answer=String(puzzle.answer+1);
+  if(!guide.includes('A′')||!guide.includes('B′')||!guide.includes('primo riquadro')||!guide.includes('secondo')||!guide.includes('risposta '+answer))throw new Error('Lane-matching guide does not trace labelled A/B routes and filter the visible answers: '+guide);
+  const wrong=puzzle.options.findIndex((_,option)=>option!==puzzle.answer),diagnosis=sandbox.__answerDifferenceLines(puzzle,wrong).join(' ');
+  if(!diagnosis.includes('Risposta '+(wrong+1)+': non corretta')||!diagnosis.includes('finisce a')||!diagnosis.includes('→')||!diagnosis.includes('risposte compatibili'))throw new Error('Lane-matching wrong-answer explanation does not state the actual labelled destination and correction.');
+  sandbox.__setLanguage('en');
+  const english=sandbox.__explanationLines(puzzle).join(' ');
+  if(!english.includes('A′')||!english.includes('first panel')||!english.includes('Answer '+answer))throw new Error('Lane-matching English guide lost its labelled route explanation.');
+ }
+ sandbox.__setLanguage('it');
 }
 
 for(const {family,level,seed} of regressionCases)try{verifyPuzzle(sandbox.__makeBalancedPuzzle(seed,level,family),{family,level,seed})}catch(error){failures.push({family,level,seed,message:error.message})}
@@ -217,6 +281,8 @@ try{verifySingleExerciseDifficultySelection()}catch(error){failures.push({family
 try{verifyProgressivePlanning()}catch(error){failures.push({family:'progressive-test-planning',message:error.message})}
 try{verifyXorBinaryReference()}catch(error){failures.push({family:'xor-blocks-binary-reference',message:error.message})}
 try{verifyXorBlocksFamily()}catch(error){failures.push({family:'xor-blocks-semantics',message:error.message})}
+try{verifyLaneMatchingFamily()}catch(error){failures.push({family:'lane-matching-semantics',message:error.message})}
+try{verifyLaneMatchingExplanations()}catch(error){failures.push({family:'lane-matching-explanations',message:error.message})}
 for(const family of families)for(let level=1;level<=6;level++)for(let variant=0;variant<3;variant++){
  const seed='single-exercise|'+family+'|'+level+'|'+variant;
  try{verifyPuzzle(sandbox.__makeBalancedPuzzle(seed,level,family),{family,level,seed})}
