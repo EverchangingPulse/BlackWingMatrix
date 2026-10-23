@@ -1710,6 +1710,13 @@ function xorBlockProjectionIsReadable(motion,targetPhase){
  const before=xorBlockMotionPositionAtPhase(motion,targetPhase-2),previous=xorBlockMotionPositionAtPhase(motion,targetPhase-1),current=xorBlockMotionPositionAtPhase(motion,targetPhase),first={x:previous.x-before.x,y:previous.y-before.y},second={x:current.x-previous.x,y:current.y-previous.y};
  return Boolean(first.x||first.y)&&first.x===second.x&&first.y===second.y
 }
+function xorBlockSerpentineProjectionIsOutbound(motion,targetPhase){
+ /* The return sweep is a legitimate continuation, but it must not be what
+    determines the blank. It would add an unshown reversal to the answer. */
+ if(motion.kind!=='serpentine')return true;
+ const phase=mod(motion.start+motion.direction*targetPhase,XOR_BLOCK_SERPENTINE.length);
+ return motion.direction===1&&phase<=8
+}
 function xorBlockSerpentineRetracesAtEnds(motion){
  if(motion.kind!=='serpentine')return true;
  const endpoints=motion.mirrorX?['2,0','0,2']:['0,0','2,2'];
@@ -1717,7 +1724,7 @@ function xorBlockSerpentineRetracesAtEnds(motion){
  return true
 }
 function chooseXorBlockTargetPhase(r,...motions){
- const candidates=[];for(let phase=8;phase<72;phase++)if(motions.every(motion=>xorBlockProjectionIsReadable(motion,phase)))candidates.push(phase);
+ const candidates=[];for(let phase=8;phase<72;phase++)if(motions.every(motion=>xorBlockProjectionIsReadable(motion,phase)&&xorBlockSerpentineProjectionIsOutbound(motion,phase)))candidates.push(phase);
  return candidates.length?pick(r,candidates):null
 }
 function makeXorBlockMotion(r,kind){
@@ -1726,7 +1733,7 @@ function makeXorBlockMotion(r,kind){
     descends one anchor, and retraces only after reaching the bottom edge. */
  if(kind==='static')return{kind,position:{...pick(r,XOR_BLOCK_POSITIONS)}};
  if(kind==='circle')return{kind,start:Math.floor(r()*XOR_BLOCK_RING.length),direction:pick(r,[1,-1])};
- if(kind==='serpentine')return{kind,start:Math.floor(r()*XOR_BLOCK_SERPENTINE.length),direction:pick(r,[1,-1]),mirrorX:r()<.5};
+ if(kind==='serpentine')return{kind,start:Math.floor(r()*XOR_BLOCK_SERPENTINE.length),direction:1,mirrorX:r()<.5};
  return{kind:'linear',axis:pick(r,['horizontal','vertical']),fixed:Math.floor(r()*3),start:Math.floor(r()*4),direction:pick(r,[1,-1])}
 }
 function xorBlockSetPositions(tile,a,b){tile.a={x:a.x,y:a.y};tile.b={x:b.x,y:b.y};return xorBlockRefresh(tile)}

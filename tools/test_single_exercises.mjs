@@ -129,6 +129,11 @@ function xorSerpentineProjectionIsReadable(motion,targetPhase){
  const before=xorMotionPositionAtPhase(motion,targetPhase-2),previous=xorMotionPositionAtPhase(motion,targetPhase-1),current=xorMotionPositionAtPhase(motion,targetPhase),first={x:previous.x-before.x,y:previous.y-before.y},second={x:current.x-previous.x,y:current.y-previous.y};
  return Boolean(first.x||first.y)&&first.x===second.x&&first.y===second.y;
 }
+function xorSerpentineProjectionIsOutbound(motion,targetPhase){
+ if(motion.kind!=='serpentine')return true;
+ const phase=((motion.start+motion.direction*targetPhase)%16+16)%16;
+ return motion.direction===1&&phase<=8;
+}
 function xorSerpentineRetracesAtEnds(motion){
  if(motion.kind!=='serpentine')return true;
  const endpoints=motion.mirrorX?['2,0','0,2']:['0,0','2,2'],key=position=>position.x+','+position.y;
@@ -176,6 +181,7 @@ function verifyXorBlocksFamily(){
    if(!xorMotionRespectsMomentum(motion))throw new Error('XOR-block motion reverses an axis before reaching the corresponding board edge.');
    if(!xorSerpentineRetracesAtEnds(motion))throw new Error('XOR-block serpentine path does not retrace immediately after an endpoint.');
    if(!xorSerpentineProjectionIsReadable(motion,model.projectionPhase))throw new Error('XOR-block missing panel follows a serpentine corner before its direction is visible.');
+   if(!xorSerpentineProjectionIsOutbound(motion,model.projectionPhase))throw new Error('XOR-block missing panel is determined by a serpentine return sweep.');
    if(motion.kind==='circle')circleDirections.add(motion.direction);
    if(motion.kind==='linear')linearAxes.add(motion.axis);
    if(motion.kind==='serpentine'){serpentineDirections.add(motion.direction);serpentineMirrors.add(Boolean(motion.mirrorX));}
@@ -208,7 +214,7 @@ function verifyXorBlocksFamily(){
  if(starts.some(set=>set.size<3))throw new Error('XOR-block starting positions are not sufficiently varied across seeds.');
  if(!circleDirections.has(1)||!circleDirections.has(-1))throw new Error('XOR-block circles must cover both clockwise and counter-clockwise movement.');
  if(!linearAxes.has('horizontal')||!linearAxes.has('vertical'))throw new Error('XOR-block linear paths must cover both axes.');
- if(!serpentineDirections.has(1)||!serpentineDirections.has(-1))throw new Error('XOR-block serpentine paths must cover both directions.');
+ if(!serpentineDirections.has(1)||serpentineDirections.has(-1))throw new Error('XOR-block serpentine paths must keep the missing panel on their outward sweep.');
  if(!serpentineMirrors.has(true)||!serpentineMirrors.has(false))throw new Error('XOR-block serpentine paths must cover both horizontal mirror variants.');
  if(nonRectangularStates<120)throw new Error('XOR-block output has collapsed into rectangles instead of the source grid patterns.');
 }
