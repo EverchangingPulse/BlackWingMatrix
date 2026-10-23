@@ -19,7 +19,7 @@ if(progressiveStart<0||progressiveEnd<0)throw new Error('Could not locate the pr
 const sandbox={console,window:{},document:{getElementById:()=>null,querySelector:()=>null,querySelectorAll:()=>[],createElement:()=>({}),body:{}},localStorage:{getItem:()=>null,setItem:()=>{}},navigator:{},setTimeout:()=>{},clearTimeout:()=>{},Math,JSON,Date};
 sandbox.window=sandbox;
 vm.createContext(sandbox);
-vm.runInContext(core.slice(0,coreEnd)+'\n'+core.slice(practiceStart,practiceEnd)+'\n'+core.slice(progressiveStart,progressiveEnd)+'\nglobalThis.__makeBalancedPuzzle=makeBalancedPuzzle;globalThis.__makePracticePuzzle=makePracticePuzzle;globalThis.__practiceRange=difficultyRangeForTier;globalThis.__practiceScore=practiceDifficultyForSeed;globalThis.__generatorTier=generatorTierForDifficulty;globalThis.__familyGeneratorTier=familyGeneratorTierForDifficulty;globalThis.__familyProfile=familyDifficultyProfile;globalThis.__progressiveSteps=PROGRESSIVE_DIFFICULTY_STEPS;globalThis.__progressiveFamiliesAtStep=progressiveFamiliesAtStep;globalThis.__progressiveSurveyPlan=progressiveSurveyPlan;globalThis.__progressiveSpectrum=progressiveFamilyDifficulties;globalThis.__progressiveRangeSpectrum=progressiveDifficultiesForRange;globalThis.__progressiveSpectrumPlan=progressiveFamilySpectrumPlan;globalThis.__familyGenerationRange=familyGenerationDifficultyRange;globalThis.__empiricalFamilies=Object.keys(EMPIRICAL_FAMILY_LEVELS);globalThis.__renderFigure=renderFigure;',sandbox);
+vm.runInContext(core.slice(0,coreEnd)+'\n'+core.slice(practiceStart,practiceEnd)+'\n'+core.slice(progressiveStart,progressiveEnd)+'\nglobalThis.__makeBalancedPuzzle=makeBalancedPuzzle;globalThis.__makePracticePuzzle=makePracticePuzzle;globalThis.__practiceRange=difficultyRangeForTier;globalThis.__practiceScore=practiceDifficultyForSeed;globalThis.__generatorTier=generatorTierForDifficulty;globalThis.__familyGeneratorTier=familyGeneratorTierForDifficulty;globalThis.__familyProfile=familyDifficultyProfile;globalThis.__progressiveSteps=PROGRESSIVE_DIFFICULTY_STEPS;globalThis.__progressiveFamiliesAtStep=progressiveFamiliesAtStep;globalThis.__progressiveSurveyPlan=progressiveSurveyPlan;globalThis.__progressiveSpectrum=progressiveFamilyDifficulties;globalThis.__progressiveRangeSpectrum=progressiveDifficultiesForRange;globalThis.__progressiveSpectrumPlan=progressiveFamilySpectrumPlan;globalThis.__familyGenerationRange=familyGenerationDifficultyRange;globalThis.__empiricalFamilies=Object.keys(EMPIRICAL_FAMILY_LEVELS);globalThis.__renderFigure=renderFigure;globalThis.__explanationLines=explanationLines;globalThis.__answerDifferenceLines=answerDifferenceLines;globalThis.__setLanguage=value=>activeLanguage=value;',sandbox);
 
 const families=['custom','logical','affine','outline','outline-relations','marker-grid','carrier-token','dot-arrangement','line-assembly','spatial-tokens','grid-logic','ternary-carry','polyomino','shape-fill','split-fill','symbol-order','composition','spoke-pattern','motif-count','radial-flower','fill-grid','paired-polygons','block-balance','axis-symbols','horizontal-anchors','dot-balance','xor-blocks','lane-matching','line-xor','line-perimeter-logic','operator-transfer','minkowski-dilation','convex-hull','kronecker-product','cartesian-product','reference-mix','mixed','simple','progression','cycle'];
 const regressionCases=[{family:'custom',level:1,seed:'single-render-custom-1-2'}];
@@ -261,6 +261,20 @@ function verifyLaneMatchingFamily(){
  if(allMappings.get(5).size<40)throw new Error('The five-lane tiers do not sample enough distinct one-to-one matchings.');
  for(const required of new Set(expectedTiers.map(item=>item.variant)))if(!variants.has(required))throw new Error('The lane-matching family did not cover '+required+'.');
 }
+function verifyLaneMatchingExplanations(){
+ for(let level=1;level<=6;level++)for(let variant=0;variant<8;variant++){
+  const puzzle=sandbox.__makeBalancedPuzzle('lane-matching-explanation|'+level+'|'+variant,level,'lane-matching');
+  sandbox.__setLanguage('it');
+  const guide=sandbox.__explanationLines(puzzle).join(' '),answer=String(puzzle.answer+1);
+  if(!guide.includes('A′')||!guide.includes('B′')||!guide.includes('primo riquadro')||!guide.includes('secondo')||!guide.includes('risposta '+answer))throw new Error('Lane-matching guide does not trace labelled A/B routes and filter the visible answers: '+guide);
+  const wrong=puzzle.options.findIndex((_,option)=>option!==puzzle.answer),diagnosis=sandbox.__answerDifferenceLines(puzzle,wrong).join(' ');
+  if(!diagnosis.includes('Risposta '+(wrong+1)+': non corretta')||!diagnosis.includes('finisce a')||!diagnosis.includes('→')||!diagnosis.includes('risposte compatibili'))throw new Error('Lane-matching wrong-answer explanation does not state the actual labelled destination and correction.');
+  sandbox.__setLanguage('en');
+  const english=sandbox.__explanationLines(puzzle).join(' ');
+  if(!english.includes('A′')||!english.includes('first panel')||!english.includes('Answer '+answer))throw new Error('Lane-matching English guide lost its labelled route explanation.');
+ }
+ sandbox.__setLanguage('it');
+}
 
 for(const {family,level,seed} of regressionCases)try{verifyPuzzle(sandbox.__makeBalancedPuzzle(seed,level,family),{family,level,seed})}catch(error){failures.push({family,level,seed,message:error.message})}
 try{verifySingleExerciseDifficultySelection()}catch(error){failures.push({family:'single-exercise-difficulty-selection',message:error.message})}
@@ -268,6 +282,7 @@ try{verifyProgressivePlanning()}catch(error){failures.push({family:'progressive-
 try{verifyXorBinaryReference()}catch(error){failures.push({family:'xor-blocks-binary-reference',message:error.message})}
 try{verifyXorBlocksFamily()}catch(error){failures.push({family:'xor-blocks-semantics',message:error.message})}
 try{verifyLaneMatchingFamily()}catch(error){failures.push({family:'lane-matching-semantics',message:error.message})}
+try{verifyLaneMatchingExplanations()}catch(error){failures.push({family:'lane-matching-explanations',message:error.message})}
 for(const family of families)for(let level=1;level<=6;level++)for(let variant=0;variant<3;variant++){
  const seed='single-exercise|'+family+'|'+level+'|'+variant;
  try{verifyPuzzle(sandbox.__makeBalancedPuzzle(seed,level,family),{family,level,seed})}
