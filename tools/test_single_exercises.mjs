@@ -213,34 +213,47 @@ function verifyXorBlocksFamily(){
  if(nonRectangularStates<120)throw new Error('XOR-block output has collapsed into rectangles instead of the source grid patterns.');
 }
 function laneCompose(after,before){return before.map(target=>after[target]);}
-function laneIsMatching(mapping){return Array.isArray(mapping)&&mapping.length===3&&[...mapping].sort((a,b)=>a-b).join(',')==='0,1,2';}
+function laneIdentity(lanes){return Array.from({length:lanes},(_,index)=>index);}
+function laneIsMatching(mapping,lanes){return Array.isArray(mapping)&&mapping.length===lanes&&mapping.every(value=>Number.isInteger(value)&&value>=0&&value<lanes)&&new Set(mapping).size===lanes;}
 function verifyLaneMatchingFamily(){
- const expectedVariants=['independent-rows','independent-rows','shared-vertical-orbit','local-edit-chain','counter-rotating-columns','counter-rotating-columns'],variants=new Set(),allMappings=new Set();
+ const expectedTiers=[
+  {lanes:3,variant:'independent-rows',options:6,legal:6},
+  {lanes:3,variant:'independent-rows',options:6,legal:6},
+  {lanes:3,variant:'shared-vertical-orbit',options:6,legal:6},
+  {lanes:4,variant:'four-lane-edit-chain',options:8,legal:24},
+  {lanes:5,variant:'five-lane-counter-rotating',options:8,legal:120},
+  {lanes:5,variant:'five-lane-dense-weave',options:8,legal:120}
+ ],variants=new Set(),allMappings=new Map([[3,new Set()],[4,new Set()],[5,new Set()]]);
  for(let level=1;level<=6;level++)for(let variant=0;variant<24;variant++){
   const puzzle=sandbox.__makeBalancedPuzzle('lane-matching-semantics|'+level+'|'+variant,level,'lane-matching');
   verifyPuzzle(puzzle,{family:'lane-matching',level,variant});
-  if(puzzle.options.length!==6||puzzle.answerOptionCount!==6)throw new Error('Three-lane matching must expose exactly the six legal one-to-one answers.');
+  const expected=expectedTiers[level-1];
+  if(puzzle.options.length!==expected.options||puzzle.answerOptionCount!==expected.options)throw new Error('Lane matching does not expose the expected number of answer routes for its tier.');
   const model=puzzle.generator?.laneMatching;
-  if(!model||model.lanes!==3||model.entryAndExitHorizontalFraction!==.15||model.rowClosure!=='inverse(second o first)')throw new Error('Three-lane generator metadata is incomplete.');
-  if(model.variant!==expectedVariants[level-1])throw new Error('Three-lane variant does not match its tier.');
+  if(!model||model.lanes!==expected.lanes||model.availableMatchings!==expected.legal||model.answerOptions!==expected.options||model.entryAndExitHorizontalFraction!==.15||model.rowClosure!=='inverse(second o first)')throw new Error('Lane-matching generator metadata is incomplete.');
+  if(model.variant!==expected.variant)throw new Error('Lane-matching variant does not match its tier.');
   variants.add(model.variant);
-  const optionKeys=new Set();
+  const optionKeys=new Set(),renderedKeys=new Set();
   for(const option of puzzle.options){
-   if(option?.kind!=='lane-matching'||!laneIsMatching(option.mapping))throw new Error('A three-lane answer is not a one-to-one matching.');
-   const key=option.mapping.join(',');if(optionKeys.has(key))throw new Error('Three-lane answers contain a visual duplicate.');optionKeys.add(key);allMappings.add(key);
-   const svg=sandbox.__renderFigure(option);if(svg.includes('<text'))throw new Error('Three-lane tiles must not expose internal A/B/C labels.');
-   if(option.mapping.some((target,source)=>target!==source)&&(!svg.includes('H30.6')||!svg.includes(' 89.4 ')))throw new Error('A curved three-lane connection does not keep its 15% horizontal entry and exit.');
+   if(option?.kind!=='lane-matching'||!laneIsMatching(option.mapping,expected.lanes))throw new Error('A lane-matching answer is not a one-to-one matching.');
+   const key=option.mapping.join(',');if(optionKeys.has(key))throw new Error('Lane-matching answers contain a visual duplicate.');optionKeys.add(key);allMappings.get(expected.lanes).add(key);
+   const svg=sandbox.__renderFigure(option);if(renderedKeys.has(svg))throw new Error('Distinct lane-matching mappings rendered as the same visible tile.');renderedKeys.add(svg);
+   if(svg.includes('<text'))throw new Error('Lane-matching tiles must not expose internal A/B/C labels.');
+   if((svg.match(/<circle\b[^>]*fill="#111"/g)||[]).length!==expected.lanes*2||(svg.match(/<path\b[^>]*stroke="#111"/g)||[]).length!==expected.lanes)throw new Error('Lane-matching SVG does not show one route and two endpoint dots for every lane.');
+   if(option.mapping.some((target,source)=>target!==source)&&(!svg.includes('H30.6')||!svg.includes(' 89.4 ')))throw new Error('A curved lane connection does not keep its 15% horizontal entry and exit.');
   }
-  if(optionKeys.size!==6)throw new Error('Three-lane answers do not cover the full legal answer space.');
+  if(optionKeys.size!==expected.options)throw new Error('Lane-matching answers are not all visibly distinct.');
   for(let row=0;row<3;row++){
    const [first,second,third]=puzzle.cells.slice(row*3,row*3+3);
-   if(![first,second,third].every(tile=>tile?.kind==='lane-matching'&&laneIsMatching(tile.mapping)))throw new Error('A matrix cell is not a valid three-lane matching.');
-   if(laneCompose(third.mapping,laneCompose(second.mapping,first.mapping)).join(',')!=='0,1,2')throw new Error('A three-lane matrix row does not return every path to its original height.');
+   if(![first,second,third].every(tile=>tile?.kind==='lane-matching'&&laneIsMatching(tile.mapping,expected.lanes)))throw new Error('A matrix cell is not a valid lane matching.');
+   if(laneCompose(third.mapping,laneCompose(second.mapping,first.mapping)).join(',')!==laneIdentity(expected.lanes).join(','))throw new Error('A lane-matching matrix row does not return every path to its original height.');
   }
-  if(puzzle.options[puzzle.answer].mapping.join(',')!==puzzle.cells[8].mapping.join(','))throw new Error('The three-lane answer does not equal the missing visible matching.');
+  if(puzzle.options[puzzle.answer].mapping.join(',')!==puzzle.cells[8].mapping.join(','))throw new Error('The lane-matching answer does not equal the missing visible matching.');
  }
- if(allMappings.size!==6)throw new Error('The three-lane family did not render all six legal matchings.');
- for(const required of new Set(expectedVariants))if(!variants.has(required))throw new Error('The three-lane family did not cover '+required+'.');
+ if(allMappings.get(3).size!==6)throw new Error('The three-lane tiers did not render all six legal matchings.');
+ if(allMappings.get(4).size<16)throw new Error('The four-lane tier does not sample enough distinct one-to-one matchings.');
+ if(allMappings.get(5).size<40)throw new Error('The five-lane tiers do not sample enough distinct one-to-one matchings.');
+ for(const required of new Set(expectedTiers.map(item=>item.variant)))if(!variants.has(required))throw new Error('The lane-matching family did not cover '+required+'.');
 }
 
 for(const {family,level,seed} of regressionCases)try{verifyPuzzle(sandbox.__makeBalancedPuzzle(seed,level,family),{family,level,seed})}catch(error){failures.push({family,level,seed,message:error.message})}
